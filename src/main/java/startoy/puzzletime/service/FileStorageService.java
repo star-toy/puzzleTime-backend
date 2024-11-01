@@ -9,6 +9,7 @@ import startoy.puzzletime.domain.FileStorage;
 import startoy.puzzletime.dto.FileStorageDTO;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -49,6 +50,18 @@ public class FileStorageService {
             // S3에 파일 업로드
             String fileUrl = s3Service.uploadFile(file, fileName);
             System.out.println("fileUrl : " + fileUrl);
+
+            // FileStorage 엔티티 생성 및 데이터베이스에 저장
+            FileStorage fileStorage = FileStorage.builder()
+                    .fileUid(fileUid)
+                    .fileName(fileName)
+                    .isDeleted(false)
+                    .createdAt(LocalDateTime.now())
+                    .createdBy("system") // 필요에 따라 설정
+                    .build();
+
+            //엔티티를 데이터베이스에 저장합니다.
+                    fileStorageRepository.save(fileStorage);
 
             // FileStorageDTO 생성 및 반환
             return  FileStorageDTO.builder()
