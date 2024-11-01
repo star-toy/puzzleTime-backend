@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "pl_file_storage")
+@Table(name = "tb_file_storage")
 public class FileStorage {
 
     @Id
@@ -47,10 +47,4 @@ public class FileStorage {
 
     @Column(name = "updated_by", length = 20)
     private String updatedBy;
-
-    @NotNull
-    @Column(name = "file_linked_uid", nullable = false, length = 36)
-    private String fileLinkedUid;
-
-
 }
