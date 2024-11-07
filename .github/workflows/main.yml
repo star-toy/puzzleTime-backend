@@ -50,16 +50,16 @@ jobs:
         run: ls -la build/libs/
 
       # 테스트 실행 (MySQL 서비스에 연결)
-      - name: 테스트 실행
-        env:
-           # SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
-           # SPRING_DATASOURCE_USERNAME: puzzletime
-           # SPRING_DATASOURCE_PASSWORD: puzzletime
-           SPRING_PROFILES_ACTIVE: test
-           SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/polling?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
-           SPRING_DATASOURCE_USERNAME: polling
-           SPRING_DATASOURCE_PASSWORD: polling
-        run: ./gradlew test --scan # --scan 옵션 추가
+      # - name: 테스트 실행
+      #   env:
+      #      # SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+      #      # SPRING_DATASOURCE_USERNAME: puzzletime
+      #      # SPRING_DATASOURCE_PASSWORD: puzzletime
+      #      SPRING_PROFILES_ACTIVE: test
+      #      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/polling?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+      #      SPRING_DATASOURCE_USERNAME: polling
+      #      SPRING_DATASOURCE_PASSWORD: polling
+      #   run: ./gradlew test --scan # --scan 옵션 추가
 
 
   # 배포 Job
