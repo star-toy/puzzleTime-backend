@@ -14,9 +14,12 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: puzzletime #변경예정
-          MYSQL_USER: puzzletime
-          MYSQL_PASSWORD: puzzletime
+          MYSQL_DATABASE: polling
+          MYSQL_USER: polling
+          MYSQL_PASSWORD: polling
+          # MYSQL_DATABASE: puzzletime #변경예정
+          # MYSQL_USER: puzzletime
+          # MYSQL_PASSWORD: puzzletime
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5
@@ -49,9 +52,13 @@ jobs:
       # 테스트 실행 (MySQL 서비스에 연결)
       - name: 테스트 실행
         env:
-           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
-           SPRING_DATASOURCE_USERNAME: puzzletime
-           SPRING_DATASOURCE_PASSWORD: puzzletime
+           # SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+           # SPRING_DATASOURCE_USERNAME: puzzletime
+           # SPRING_DATASOURCE_PASSWORD: puzzletime
+           SPRING_PROFILES_ACTIVE: test
+           SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/polling?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+           SPRING_DATASOURCE_USERNAME: polling
+           SPRING_DATASOURCE_PASSWORD: polling
         run: ./gradlew test --scan # --scan 옵션 추가
 
 
