@@ -39,7 +39,7 @@ jobs:
       - name: MySQL 서비스 상태 확인
         run: |
          echo "Waiting for MySQL service to be ready..."
-          until echo 'SELECT 1' | mysql -h mysql -u puzzletime -ppuzzletime; do
+          until echo 'SELECT 1' | mysql -h localhost -u puzzletime -ppuzzletime; do
             echo "MySQL is unavailable - waiting..."
             sleep 5
           done
@@ -54,7 +54,7 @@ jobs:
           GRADLE_ENTERPRISE_CONSENT: "yes"
           # Spring Boot 데이터베이스 설정
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
           SPRING_DATASOURCE_USERNAME: puzzletime
           SPRING_DATASOURCE_PASSWORD: puzzletime
         run: ./gradlew clean build --scan
