@@ -48,7 +48,6 @@ jobs:
       # 테스트 실행 (MySQL 서비스에 연결)
       - name: 테스트 실행
         env:
-           SPRING_PROFILES_ACTIVE: test
            SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
            SPRING_DATASOURCE_USERNAME: puzzletime
            SPRING_DATASOURCE_PASSWORD: puzzletime
