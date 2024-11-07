@@ -34,10 +34,10 @@ jobs:
       - name: Gradle Wrapper에 실행 권한 추가
         run: chmod +x ./gradlew
 
-      #- name: Gradle 빌드
-       # env:
+      - name: Gradle 빌드
+        #env:
         #  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
-        #run: ./gradlew clean build --scan
+        run: ./gradlew clean build --scan
 
       - name: 빌드 디렉토리 확인
         run: ls -la build/
@@ -57,7 +57,7 @@ jobs:
 
   # 배포 Job
   deploy:
-    needs: build # build job이 성공해야 deploy가 실행됨
+    needs: build
     runs-on: ubuntu-latest
           
     steps:
