@@ -14,12 +14,12 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: polling
-          MYSQL_USER: polling
-          MYSQL_PASSWORD: polling
-          # MYSQL_DATABASE: puzzletime #변경예정
-          # MYSQL_USER: puzzletime
-          # MYSQL_PASSWORD: puzzletime
+          # MYSQL_DATABASE: polling
+          # MYSQL_USER: polling
+          # MYSQL_PASSWORD: polling
+          MYSQL_DATABASE: puzzletime #변경예정
+          MYSQL_USER: puzzletime
+          MYSQL_PASSWORD: puzzletime
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5
