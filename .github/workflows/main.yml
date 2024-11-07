@@ -49,6 +49,11 @@ jobs:
         env:
         #  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
           GRADLE_ENTERPRISE_CONSENT: "yes"
+          # Spring Boot 데이터베이스 설정
+          SPRING_PROFILES_ACTIVE: test
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+          SPRING_DATASOURCE_USERNAME: puzzletime
+          SPRING_DATASOURCE_PASSWORD: puzzletime
         run: ./gradlew clean build --scan
 
       - name: 빌드 디렉토리 확인
@@ -57,14 +62,7 @@ jobs:
       - name: 빌드 결과 확인
         run: ls -la build/libs/
 
-      # 테스트 실행 (MySQL 서비스에 연결)
-      - name: 테스트 실행
-        env:
-           SPRING_PROFILES_ACTIVE: test
-           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
-           SPRING_DATASOURCE_USERNAME: puzzletime
-           SPRING_DATASOURCE_PASSWORD: puzzletime
-        run: ./gradlew test --scan # --scan 옵션 추가
+
 
 
   # 배포 Job
