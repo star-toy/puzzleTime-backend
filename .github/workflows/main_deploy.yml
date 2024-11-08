@@ -1,4 +1,4 @@
-name: develop_depoly
+name: main_deploy
 
 on:
   push:
