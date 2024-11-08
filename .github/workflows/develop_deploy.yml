@@ -15,10 +15,7 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_ROOT_PASSWORD: root
-          # MYSQL_DATABASE: polling
-          # MYSQL_USER: polling
-          # MYSQL_PASSWORD: polling
-          MYSQL_DATABASE: puzzletime #변경예정
+          MYSQL_DATABASE: puzzletime
           MYSQL_USER: puzzletime
           MYSQL_PASSWORD: puzzletime
         ports:
@@ -99,10 +96,10 @@ jobs:
       - name: Gradle Wrapper에 실행 권한 추가
         run: chmod +x ./gradlew
         
-     # - name: Gradle 빌드 (deploy job에서)
+      - name: Gradle 빌드 (deploy job에서)
       #  env:
        #   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
-       # run: ./gradlew clean build --scan
+        run: ./gradlew clean build --scan
         #working-directory: ./polling-backend # 빌드할 디렉토리 설정
 
       - name: 빌드 디렉토리 확인
