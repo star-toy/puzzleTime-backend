@@ -2,8 +2,8 @@ name: depoly
 
 on:
   push:
-    branches: ['develop']
-    #branches: ['main']
+    #branches: ['develop']
+    branches: ['main']
 
 jobs:
   # 빌드 및 테스트 Job
