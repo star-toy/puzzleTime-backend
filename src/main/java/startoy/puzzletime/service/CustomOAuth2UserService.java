@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -42,6 +43,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .provider(provider)
                     .providerId(providerId)
                     .role(UserRole.USER)  // 기본적으로 USER 역할을 부여
+                    .createdAt(LocalDateTime.now())
                     .build();
         });
 
