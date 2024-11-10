@@ -55,8 +55,11 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
           SPRING_DATASOURCE_USERNAME: puzzletime
           SPRING_DATASOURCE_PASSWORD: puzzletime
+          REGISTRATION_GOOGLE_CLIENT_ID: ${{ secrets.REGISTRATION_GOOGLE_CLIENT_ID }}
+          REGISTRATION_GOOGLE_CLIENT_SECRET: ${{ secrets.REGISTRATION_GOOGLE_CLIENT_SECRET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          REGISTRATION_GOOGLE_REDIRECT_URI: https://puzzletime.fun/login/oauth2/code/google
         run: ./gradlew clean build --scan
 
       - name: 빌드 디렉토리 확인

@@ -14,8 +14,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "https://polling.world", "https://api.polling.world","https://www.polling.world"
-                        ,"https://polling-frontend-ero02mc58-polling-frontend.vercel.app", "https://api-dev.polling.world")
+                .allowedOrigins("http://localhost:3000", "https://puzzletime.fun", "https://api.puzzletime.fun","https://www.puzzletime.fun"
+                        ,"https://polling-frontend-ero02mc58-polling-frontend.vercel.app", "https://api-dev.puzzletime.com",
+                        "https://dev-puzzletime.com","https://www.dev-puzzletime.com")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
