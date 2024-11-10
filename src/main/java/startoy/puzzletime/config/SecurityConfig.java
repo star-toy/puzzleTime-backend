@@ -12,7 +12,9 @@ import startoy.puzzletime.service.CustomOAuth2UserService;
 @EnableWebSecurity(debug = true) // 디버깅 활성화
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_URLS = {"/", "/api/session/**",
+    private static final String[] PUBLIC_URLS = {
+            "/",
+            "/api/session/**",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-resources/**",
@@ -27,6 +29,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(PUBLIC_URLS).permitAll()  // PUBLIC_URLS에 포함된 경로들 허용
                         .requestMatchers("/api/auth/**", "/oauth2/**").permitAll()  // OAuth2 관련 경로 허용
                         .anyRequest().authenticated()
                 )
