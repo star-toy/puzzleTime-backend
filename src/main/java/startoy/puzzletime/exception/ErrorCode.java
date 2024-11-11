@@ -1,7 +1,9 @@
 package startoy.puzzletime.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public enum ErrorCode {
     // 아트웍 관련 에러
     ARTWORK_NOT_FOUND(HttpStatus.NOT_FOUND, "Artwork not found"),
