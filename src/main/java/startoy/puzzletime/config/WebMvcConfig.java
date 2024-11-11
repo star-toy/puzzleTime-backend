@@ -16,7 +16,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:3000", "https://puzzletime.fun", "https://api.puzzletime.fun","https://www.puzzletime.fun"
                         ,"https://polling-frontend-ero02mc58-polling-frontend.vercel.app", "https://api-dev.puzzletime.com",
-                        "https://dev-puzzletime.com","https://www.dev-puzzletime.com")
+                        "https://dev-puzzletime.com","https://www.dev-puzzletime.com","http://localhost:9090")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)

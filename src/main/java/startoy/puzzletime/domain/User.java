@@ -25,11 +25,7 @@ public class User {
     private Long id;
 
     @NotNull
-    @Column(name = "user_uid", unique = true, nullable = false, length = 36)
-    private String userUid;
-
-    @NotNull
-    @Column(name = "user_name", nullable = false)
+    @Column(name = "username", nullable = false)
     private String userName;
 
     @NotNull
