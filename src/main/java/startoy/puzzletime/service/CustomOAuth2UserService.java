@@ -37,7 +37,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         User user = userRepository.findByEmail(email).orElseGet(() -> {
             // 없으면 새 사용자 생성
             return User.builder()
-                    .userUid(UUID.randomUUID().toString())
                     .userName(name)
                     .email(email)
                     .provider(provider)
@@ -46,6 +45,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .createdAt(LocalDateTime.now())
                     .build();
         });
+
+        System.out.println("OAuth2 로그인 사용자: " + email);
 
         // 사용자 정보가 새로 추가되었으면 저장
         if (user.getId() == null) {
