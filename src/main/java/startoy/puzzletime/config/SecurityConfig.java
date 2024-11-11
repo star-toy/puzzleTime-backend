@@ -23,7 +23,8 @@ public class SecurityConfig {
             "/error",
             "/images/**",
             "/favicon.ico",
-            "/actuator/**"}; // 이미지 파일에 대한 접근 허용
+            "/actuator/**",
+            "/api/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
