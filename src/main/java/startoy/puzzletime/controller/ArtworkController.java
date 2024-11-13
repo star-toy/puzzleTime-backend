@@ -1,5 +1,7 @@
 package startoy.puzzletime.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +16,13 @@ import startoy.puzzletime.service.ArtworkService;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("api/artworks")
+@Tag(name = "ArtWorks", description = "ArtWorks API")
 public class ArtworkController {
 
-    @Autowired
-    private ArtworkService artworkService;
+    private final ArtworkService artworkService;
 
     // 특정 아트웍의 기본 정보(예: 제목, 설명)를 조회
     @GetMapping("/{artworkUid}")
