@@ -14,6 +14,9 @@ public enum ErrorCode {
     // 사용자 관련 에러
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
 
+    // 이미지 관련 에러
+    IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "Image not found"),
+
     // 기타 일반적인 에러
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "Bad request"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
@@ -34,4 +37,5 @@ public enum ErrorCode {
     public String getMessage() {
         return message;
     }
-}
+
+    }
