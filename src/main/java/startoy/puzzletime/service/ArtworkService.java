@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import startoy.puzzletime.domain.Artwork;
 import startoy.puzzletime.domain.ImageStorage;
+import startoy.puzzletime.domain.PuzzlePlay;
 import startoy.puzzletime.dto.ArtworkDto;
 import startoy.puzzletime.dto.puzzle.PuzzleResponseDTO;
 import startoy.puzzletime.exception.CustomException;
@@ -20,6 +21,7 @@ public class ArtworkService {
     private final ArtworkRepository artworkRepository;
     private final PuzzleRepository puzzleRepository;
     private final ImageStorageRepository imageStorageRepository;
+    private final PuzzlePlayRepository puzzlePlayRepository;
 
 
     public ArtworkDto getArtworkByUid(String artworkUid) {
@@ -50,12 +52,18 @@ public class ArtworkService {
                             .map(ImageStorage::getImageUrl)
                             .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
 
+                    // tb_puzzle_play 테이블에서 해당 퍼즐의 완료 여부를 조회
+                    boolean isCompleted = puzzlePlayRepository.findByPuzzle_PuzzleId(puzzle.getPuzzleId())
+                            .map(PuzzlePlay::getIsCompleted)
+                            .orElse(false);
+
                     // PuzzleDto 객체 생성 및 반환
                     return new PuzzleResponseDTO(
                             puzzle.getPuzzleUid(),
                             puzzle.getPuzzleIndex(),
                             puzzle.getPuzzleImage().getImageId(),
-                            imageUrl
+                            imageUrl,
+                            isCompleted
                     );
                 })
                 .collect(Collectors.toList());
