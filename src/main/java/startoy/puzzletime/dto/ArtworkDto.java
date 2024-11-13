@@ -13,5 +13,4 @@ public class ArtworkDto {
     private String artworkUid;
     private String artworkTitle;
     private String artworkDescription;
-    //private int totalStages;
 }
