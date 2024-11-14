@@ -13,7 +13,7 @@ import startoy.puzzletime.dto.puzzle.PuzzleResponseDTO;
 import startoy.puzzletime.exception.CustomException;
 import startoy.puzzletime.exception.ErrorCode;
 import startoy.puzzletime.service.ArtworkService;
-
+import startoy.puzzletime.dto.puzzle.ArtworkWithPuzzlesResponseDTO;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -27,22 +27,17 @@ public class ArtworkController {
     // 특정 아트웍의 기본 정보(예: 제목, 설명)를 조회
     @GetMapping("/{artworkUid}")
     public ResponseEntity<ArtworkDto> getArtworkByUid(@PathVariable String artworkUid) {
+        // artworkService에서 artworkUid로 ArtworkDto를 조회하며, 없을 경우 예외 발생
         ArtworkDto artworkDto = artworkService.getArtworkByUid(artworkUid);
-
-        // 만약 artworkDto가 null이면 NotFoundException 예외 발생
-        if (artworkDto == null) {
-            throw new CustomException(ErrorCode.ARTWORK_NOT_FOUND);
-        }
 
         return ResponseEntity.ok(artworkDto);
     }
 
-    // 특정 아트웍에 속한 퍼즐 목록을 조회
+// 특정 아트웍의 기본 정보와 퍼즐 목록을 함께 조회
     @GetMapping("/{artworkUid}/puzzles")
-    public ResponseEntity<List<PuzzleResponseDTO>> getPuzzlesByArtworkUid(@PathVariable String artworkUid) {
-        List<PuzzleResponseDTO> puzzleDto = artworkService.getPuzzlesByArtworkUid(artworkUid);
-        return ResponseEntity.ok(puzzleDto);
-
+    public ResponseEntity<ArtworkWithPuzzlesResponseDTO> getArtworkWithPuzzles(@PathVariable String artworkUid) {
+        ArtworkWithPuzzlesResponseDTO responseDto = artworkService.getArtworkWithPuzzlesByUid(artworkUid);
+        return ResponseEntity.ok(responseDto);
     }
 }
 
