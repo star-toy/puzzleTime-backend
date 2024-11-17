@@ -3,6 +3,7 @@ package startoy.puzzletime.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,7 +41,8 @@ public class SecurityConfig {
                         )
                         .defaultSuccessUrl("/api/auth/oauth2/success", true)  // 성공 시 API로 리디렉트
                 )
-                .csrf(csrf -> csrf.disable());  // REST API에서 CSRF 비활성화
+                .csrf(csrf -> csrf.disable())  // REST API에서 CSRF 비활성화
+                .cors(Customizer.withDefaults()); // CORS 설정 추가
 
         return http.build();
     }
