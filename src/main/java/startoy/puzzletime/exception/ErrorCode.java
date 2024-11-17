@@ -5,6 +5,10 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+
+    // 테마 관련 에러 THEME_NOT_FOUND
+    THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "Theme not found"),
+
     // 아트웍 관련 에러
     ARTWORK_NOT_FOUND(HttpStatus.NOT_FOUND, "Artwork not found"),
 
