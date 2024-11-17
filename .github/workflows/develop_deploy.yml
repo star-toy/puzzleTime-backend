@@ -60,7 +60,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
           REGISTRATION_GOOGLE_REDIRECT_URI: https://puzzletime.fun/login/oauth2/code/google
-        run: ./gradlew clean build --scan
+        run: ./gradlew clean build --no-build-cache --info --stacktrace --scan
 
       - name: 빌드 디렉토리 확인
         run: ls -la build/
