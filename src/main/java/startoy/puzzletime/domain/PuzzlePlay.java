@@ -36,10 +36,6 @@ public class PuzzlePlay {
     private Boolean isCompleted;
 
     @NotNull
-    @Column(name = "user_stage_pref_id", nullable = false)
-    private Long userStagePrefId;
-
-    @NotNull
     @Column(name = "image_id", nullable = false)
     private Long imageId;
 
