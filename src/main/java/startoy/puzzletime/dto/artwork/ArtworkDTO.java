@@ -1,4 +1,4 @@
-package startoy.puzzletime.dto;
+package startoy.puzzletime.dto.artwork;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArtworkDto {
+public class ArtworkDTO {
     private String artworkUid;
     private String artworkTitle;
     private String artworkDescription;
