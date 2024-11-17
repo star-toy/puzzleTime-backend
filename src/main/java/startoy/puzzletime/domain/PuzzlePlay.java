@@ -22,6 +22,10 @@ public class PuzzlePlay {
     private Long puzzlePlayId;
 
     @NotNull
+    @Column(name = "puzzle_play_uid, ", length = 36, nullable = false)
+    private String puzzlePlayUid;
+
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     private User user;
