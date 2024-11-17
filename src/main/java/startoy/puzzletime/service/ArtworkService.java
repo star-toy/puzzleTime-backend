@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import startoy.puzzletime.domain.Artwork;
 import startoy.puzzletime.domain.ImageStorage;
 import startoy.puzzletime.domain.PuzzlePlay;
-import startoy.puzzletime.dto.ArtworkDto;
+import startoy.puzzletime.dto.artwork.ArtworkDTO;
 import startoy.puzzletime.dto.puzzle.PuzzleResponseDTO;
 import startoy.puzzletime.exception.CustomException;
 import startoy.puzzletime.exception.ErrorCode;
@@ -14,7 +14,6 @@ import startoy.puzzletime.repository.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import startoy.puzzletime.dto.puzzle.ArtworkWithPuzzlesResponseDTO;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +25,9 @@ public class ArtworkService {
     private final PuzzlePlayRepository puzzlePlayRepository;
 
     // artworkUid로 특정 Artwork를 조회하는 메서드
-    public ArtworkDto getArtworkByUid(String artworkUid) {
+    public ArtworkDTO getArtworkByUid(String artworkUid) {
         return artworkRepository.findByArtworkUid(artworkUid)
-                .map(artwork -> new ArtworkDto(
+                .map(artwork -> new ArtworkDTO(
                         artwork.getArtworkUid(),
                         artwork.getArtworkTitle(),
                         artwork.getArtworkDescription()
@@ -45,7 +44,7 @@ public class ArtworkService {
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTWORK_NOT_FOUND));
 
         // 아트웍 정보 생성
-        ArtworkDto artworkDto = new ArtworkDto(
+        ArtworkDTO artworkDto = new ArtworkDTO(
                 artwork.getArtworkUid(),
                 artwork.getArtworkTitle(),
                 artwork.getArtworkDescription()
