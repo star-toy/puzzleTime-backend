@@ -26,6 +26,11 @@ public class Artwork {
     private String artworkUid;
 
     @NotNull
+    @ManyToOne
+    @JoinColumn(name = "theme_id", referencedColumnName = "theme_id", nullable = false)
+    private Theme theme;
+
+    @NotNull
     @Column(name = "artwork_title", length = 100, nullable = false)
     private String artworkTitle;
 
