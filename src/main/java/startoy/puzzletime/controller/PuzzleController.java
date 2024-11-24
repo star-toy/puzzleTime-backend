@@ -30,10 +30,8 @@ public class PuzzleController {
     public ResponseEntity<GetPuzzleResponse> getPuzzleById(
             @PathVariable @Parameter(description = "퍼즐 UID", required = true) String puzzleUid,
             OAuth2AuthenticationToken authentication) {
-
-         String userId = userService.getUserId(authentication);
-         GetPuzzleResponse puzzleResponse = puzzleService.getPuzzleByUid(puzzleUid, userId);
-
+        String userId = userService.getUserId(authentication);
+        GetPuzzleResponse puzzleResponse = puzzleService.getPuzzleByUid(puzzleUid, userId);
         return ResponseEntity.ok(puzzleResponse);
     }
 }
