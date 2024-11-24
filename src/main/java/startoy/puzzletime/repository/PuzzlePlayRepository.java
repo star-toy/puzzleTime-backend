@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 import jakarta.persistence.ColumnResult;
 import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.SqlResultSetMapping;
+import startoy.puzzletime.domain.Puzzle;
 import startoy.puzzletime.domain.PuzzlePlay;
+import startoy.puzzletime.domain.User;
 import startoy.puzzletime.dto.puzzle.GetPuzzleResponse;
 
 import java.util.Map;
@@ -65,4 +67,5 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
      *    and tpp.user_id = :userId				-- tb_puzzle_play 중 일치하는 사용자 정보 조회
      * #endregion */
 
+    Optional<PuzzlePlay> findByUserAndPuzzle(User user, Puzzle puzzle);
 }
