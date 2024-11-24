@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 import jakarta.persistence.ColumnResult;
 import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.SqlResultSetMapping;
+import startoy.puzzletime.domain.Puzzle;
 import startoy.puzzletime.domain.PuzzlePlay;
+import startoy.puzzletime.domain.User;
 import startoy.puzzletime.dto.puzzle.GetPuzzleResponse;
 
 import java.util.Map;
@@ -67,4 +69,7 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
 
 
     Optional<PuzzlePlay> findByPuzzle_PuzzleIdAndUser_Id(Long puzzleId, Long userId);
+
+    Optional<PuzzlePlay> findByUserAndPuzzle(User user, Puzzle puzzle);
+
 }
