@@ -1,6 +1,8 @@
 package startoy.puzzletime.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import startoy.puzzletime.domain.Artwork;
 import startoy.puzzletime.domain.ImageStorage;
@@ -12,6 +14,7 @@ import startoy.puzzletime.exception.ErrorCode;
 import startoy.puzzletime.repository.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import startoy.puzzletime.dto.puzzle.ArtworkWithPuzzlesResponseDTO;
 
@@ -19,10 +22,12 @@ import startoy.puzzletime.dto.puzzle.ArtworkWithPuzzlesResponseDTO;
 @RequiredArgsConstructor
 public class ArtworkService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArtworkService.class);
     private final ArtworkRepository artworkRepository;
     private final PuzzleRepository puzzleRepository;
     private final ImageStorageRepository imageStorageRepository;
     private final PuzzlePlayRepository puzzlePlayRepository;
+    private final UserService userService;
 
     // artworkUid로 특정 Artwork를 조회하는 메서드
     public ArtworkDTO getArtworkByUid(String artworkUid) {
@@ -36,9 +41,9 @@ public class ArtworkService {
     }
 
     /**
-     * artworkUid로 해당 아트웍의 정보와 퍼즐 목록을 포함하여 조회합니다.
+     * artworkUid와 사용자 이메일로 아트웍 정보와 퍼즐 목록을 포함하여 조회
      */
-    public ArtworkWithPuzzlesResponseDTO getArtworkWithPuzzlesByUid(String artworkUid) {
+    public ArtworkWithPuzzlesResponseDTO getArtworkWithPuzzlesByUidAndUser(String artworkUid, String userEmail) {
         // artworkUid로 Artwork 엔티티 조회. 없으면 예외 발생
         Artwork artwork = artworkRepository.findByArtworkUid(artworkUid)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTWORK_NOT_FOUND));
@@ -50,21 +55,28 @@ public class ArtworkService {
                 artwork.getArtworkDescription()
         );
 
+        // userId로 변경
+        Long userId;
+        if (userEmail != null) {
+            userId = userService.getUserIdByEmail(userEmail); // userEmail -> userId 변환
+            logger.error("userId: {}", userId);
+        } else {
+            userId = null;
+        }
+
         // artwork_id로 퍼즐 정보 조회 후, PuzzleDto로 변환
         List<PuzzleResponseDTO> puzzles = puzzleRepository.findByArtworkArtworkId(artwork.getArtworkId())
                 .stream()
                 .map(puzzle -> {
-                    // 퍼즐의 이미지 URL을 가져오기 위해 imageStorageRepository에서 조회
                     String imageUrl = imageStorageRepository.findById(puzzle.getPuzzleImage().getImageId())
                             .map(ImageStorage::getImageUrl)
                             .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
 
-                    // tb_puzzle_play 테이블에서 해당 퍼즐의 완료 여부를 조회
-                    boolean isCompleted = puzzlePlayRepository.findByPuzzle_PuzzleId(puzzle.getPuzzleId())
+                    boolean isCompleted = userId != null && puzzlePlayRepository.findByPuzzle_PuzzleIdAndUser_Id(
+                                    puzzle.getPuzzleId(), userId)
                             .map(PuzzlePlay::getIsCompleted)
                             .orElse(false);
 
-                    // PuzzleResponseDTO 객체 생성 및 반환
                     return new PuzzleResponseDTO(
                             puzzle.getPuzzleUid(),
                             puzzle.getPuzzleIndex(),
@@ -75,7 +87,6 @@ public class ArtworkService {
                 })
                 .collect(Collectors.toList());
 
-        // ArtworkWithPuzzlesResponseDTO 생성 및 반환
-        return new ArtworkWithPuzzlesResponseDTO(artworkDto, puzzles);
+        return new ArtworkWithPuzzlesResponseDTO(artworkDto, puzzles, userEmail);
     }
 }
