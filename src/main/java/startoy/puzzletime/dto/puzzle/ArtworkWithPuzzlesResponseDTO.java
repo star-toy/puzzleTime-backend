@@ -15,4 +15,5 @@ import java.util.List;
 public class ArtworkWithPuzzlesResponseDTO {
     private ArtworkDTO artwork; // 아트웍 기본 정보
     private List<PuzzleResponseDTO> puzzles; // 퍼즐 목록
+    private String email;
 }
