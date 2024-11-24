@@ -49,12 +49,9 @@ public class AuthController {
     // OAuth2 로그인 성공 후 사용자 정보 반환
     @Operation(summary = "OAuth2 로그인 성공 후 사용자 정보 반환", description = "아직 테스트중")
     @GetMapping("/oauth2/success")
-    public ResponseEntity<LoginResponseDTO> handleOAuth2Login(
-            OAuth2AuthenticationToken authentication,
-            @RequestParam("code") String authorizationCode,
+    public ResponseEntity<LoginResponseDTO> handleOAuth2Login(OAuth2AuthenticationToken authentication,
             HttpServletResponse response) {
 
-        logger.info("Authorization Code: {}", authorizationCode);
 
         if (authentication == null || !authentication.isAuthenticated()) {
             logger.warn("OAuth2 인증 실패: 사용자 정보가 없습니다.");
@@ -63,6 +60,7 @@ public class AuthController {
 
         // 사용자 이메일 추출
         String email = authentication.getPrincipal().getAttribute("email");
+
         if (email == null) {
             logger.warn("OAuth2 인증 실패: 이메일 정보가 없습니다.");
             return ResponseEntity.status(401).body(new LoginResponseDTO("Email not found", null, null));
@@ -72,15 +70,20 @@ public class AuthController {
         String provider = authentication.getAuthorizedClientRegistrationId(); // OAuth 제공자 이름 (google, github 등)
         String providerId = authentication.getPrincipal().getAttribute("sub"); // 고유 사용자 ID
 
+        // 사용자 생성 또는 조회
         User user = userService.findOrCreateUser(email, name, provider, providerId);
 
         // Google Access Token 및 사용자 정보 처리
-        LoginResponseDTO loginResponse = oAuth2Service.processAuthorizationCode(authorizationCode);
-//        LoginResponseDTO loginResponse = oAuth2Service.processAuthorizationCode(authorizationCode);
+        //LoginResponseDTO loginResponse = oAuth2Service.processAuthorizationCode(authorizationCode);
+
+        // Access Token 처리 (예: Google Access Token이 OAuth2AuthenticationToken에 포함되어 있다면 활용 가능)
+        String accessToken = authentication.getPrincipal().getAttribute("access_token");
+
+        logger.debug("accessToken : {}",accessToken );
 
 
         // Access Token을 쿠키에 설정
-        Cookie cookie = new Cookie("token", loginResponse.getAccessToken());
+        Cookie cookie = new Cookie("token", accessToken);
         cookie.setHttpOnly(true); // JavaScript 접근 금지
         cookie.setSecure(true);  // HTTPS에서만 전송
         cookie.setPath("/");
@@ -90,7 +93,7 @@ public class AuthController {
         logger.info("OAuth2 로그인 성공: 사용자 '{}'", email);
 
         // 성공 메시지와 사용자 정보 반환
-        return ResponseEntity.ok(new LoginResponseDTO("Login successful", user, loginResponse.getAccessToken()));
+        return ResponseEntity.ok(new LoginResponseDTO("Login successful", user, accessToken));
     }
 
     /**

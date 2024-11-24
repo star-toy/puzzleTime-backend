@@ -67,5 +67,9 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
      *    and tpp.user_id = :userId				-- tb_puzzle_play 중 일치하는 사용자 정보 조회
      * #endregion */
 
+
+    Optional<PuzzlePlay> findByPuzzle_PuzzleIdAndUser_Id(Long puzzleId, Long userId);
+
     Optional<PuzzlePlay> findByUserAndPuzzle(User user, Puzzle puzzle);
+
 }
