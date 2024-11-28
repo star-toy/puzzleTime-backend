@@ -13,6 +13,7 @@ import startoy.puzzletime.domain.PuzzlePlay;
 import startoy.puzzletime.domain.User;
 import startoy.puzzletime.dto.puzzle.GetPuzzleResponse;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -71,5 +72,10 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
     Optional<PuzzlePlay> findByPuzzle_PuzzleIdAndUser_Id(Long puzzleId, Long userId);
 
     Optional<PuzzlePlay> findByUserAndPuzzle(User user, Puzzle puzzle);
+
+    // 특정 사용자의 미완료된 퍼즐 조회
+    @Query("SELECT pp FROM PuzzlePlay pp JOIN pp.puzzle p JOIN pp.user u " +
+            "WHERE u.email = :email AND pp.isCompleted = false")
+    List<PuzzlePlay> findPlayingPuzzlesByUserEmail(String email);
 
 }
