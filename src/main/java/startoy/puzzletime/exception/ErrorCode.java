@@ -20,6 +20,9 @@ public enum ErrorCode {
 
     // 이미지 관련 에러
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "Image not found"),
+    
+    // 토큰 관련 에러
+    INVALID_TOKEN(HttpStatus.NOT_FOUND, "No token found in cookie"),
 
     // 기타 일반적인 에러
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "Bad request"),
