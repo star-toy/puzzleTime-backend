@@ -7,13 +7,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import startoy.puzzletime.domain.User;
+import startoy.puzzletime.dto.user.LoginRequestDTO;
 import startoy.puzzletime.dto.user.LoginResponseDTO;
-import startoy.puzzletime.dto.user.OAuth2TokenRequestDTO;
-import startoy.puzzletime.service.OAuth2Service;
+import startoy.puzzletime.dto.user.UserWithStatusDTO;
+import startoy.puzzletime.exception.CustomException;
+import startoy.puzzletime.service.TokenService;
 import startoy.puzzletime.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.stereotype.Controller;
+import startoy.puzzletime.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,101 +31,91 @@ public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private final UserService userService;
-    private final OAuth2Service oAuth2Service;
+    private final TokenService tokenService;
 
+    @Operation(summary = "로그인/회원가입", description = "프론트엔드에서 사용자 정보를 전달받아 처리")
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> handleLogin(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
+        logger.info("Received login request for email: {}", request.getEmail());
 
-    @Operation(summary = "Exchange Authorization Code for Access Token", description = "Authorization Code로 Access Token 요청")
-    @PostMapping("/oauth2/token")
-    public ResponseEntity<LoginResponseDTO> handleAuthorizationCode(@RequestBody OAuth2TokenRequestDTO request) {
+        // 사용자 생성 또는 조회 (앱 액세스 토큰은 서비스에서 생성)
+        UserWithStatusDTO userWithStatus = userService.findOrCreateUser(
+                request.getEmail(),
+                request.getName(),
+                request.getProvider(),
+                request.getProviderId(),
+                request.getRefreshToken()
+        );
 
-        String authorizationCode = request.getCode(); // 프론트에서 받은 Authorization Code
+        // 신규 사용자 여부 확인 (생성 시간과 수정 시간이 같으면 신규 사용자)
+        User user = userWithStatus.getUser();
+        String message = userWithStatus.isNewUser() ? "Registration successful" : "Login successful";
 
-        logger.debug("code : {}",authorizationCode );
+        logger.info("{} for user: {}", message, user.getEmail());
 
-        // OAuth2Service를 통해 Authorization Code 처리
-        LoginResponseDTO response = oAuth2Service.processAuthorizationCode(authorizationCode);
-        return ResponseEntity.ok(response);
-    }
-
-    // OAuth2 로그인 성공 후 사용자 정보 반환
-    @Operation(summary = "OAuth2 로그인 성공 후 사용자 정보 반환", description = "아직 테스트중")
-    @GetMapping("/oauth2/success")
-    public ResponseEntity<LoginResponseDTO> handleOAuth2Login(OAuth2AuthenticationToken authentication,
-            HttpServletResponse response) {
-
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            logger.warn("OAuth2 인증 실패: 사용자 정보가 없습니다.");
-            return ResponseEntity.status(401).body(new LoginResponseDTO("Authentication failed", null,null));
-        }
-
-        // 사용자 이메일 추출
-        String email = authentication.getPrincipal().getAttribute("email");
-
-        if (email == null) {
-            logger.warn("OAuth2 인증 실패: 이메일 정보가 없습니다.");
-            return ResponseEntity.status(401).body(new LoginResponseDTO("Email not found", null, null));
-        }
-
-        String name = authentication.getPrincipal().getAttribute("name"); // 사용자 이름
-        String provider = authentication.getAuthorizedClientRegistrationId(); // OAuth 제공자 이름 (google, github 등)
-        String providerId = authentication.getPrincipal().getAttribute("sub"); // 고유 사용자 ID
-
-        // 사용자 생성 또는 조회
-        User user = userService.findOrCreateUser(email, name, provider, providerId);
-
-        // Google Access Token 및 사용자 정보 처리
-        //LoginResponseDTO loginResponse = oAuth2Service.processAuthorizationCode(authorizationCode);
-
-        // Access Token 처리 (예: Google Access Token이 OAuth2AuthenticationToken에 포함되어 있다면 활용 가능)
-        String accessToken = authentication.getPrincipal().getAttribute("access_token");
-
-        logger.debug("accessToken : {}",accessToken );
-
-
-        // Access Token을 쿠키에 설정
-        Cookie cookie = new Cookie("token", accessToken);
-        cookie.setHttpOnly(true); // JavaScript 접근 금지
-        cookie.setSecure(true);  // HTTPS에서만 전송
+        // 쿠키에 앱 액세스 토큰 설정
+        Cookie cookie = new Cookie("token", user.getAppAccessToken());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 24); // 1일 동안 유효
+        cookie.setMaxAge(60 * 60 * 24);
         response.addCookie(cookie);
 
-        logger.info("OAuth2 로그인 성공: 사용자 '{}'", email);
-
-        // 성공 메시지와 사용자 정보 반환
-        return ResponseEntity.ok(new LoginResponseDTO("Login successful", user, accessToken));
+        return ResponseEntity.ok(LoginResponseDTO.builder()
+                .message(message)
+                .user(user)
+                .appAccessToken(user.getAppAccessToken())
+                .isNewUser(userWithStatus.isNewUser())
+                .build());
     }
 
-    /**
-     * 로그아웃 처리
-     */
-    @Operation(summary = "로그아웃", description = "아직 테스트중")
-    @GetMapping("/logout" )
+    @Operation(summary = "토큰 갱신", description = "만료된 앱 액세스 토큰 갱신")
+    @PostMapping("/token/refresh")
+    public ResponseEntity<LoginResponseDTO> refreshToken(
+            @CookieValue(name = "token", required = false) String token,
+            HttpServletResponse response) {
+        logger.info("Token refresh requested");
+
+        if (token == null) {
+            logger.error("No token found in cookie");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+
+        // 토큰 갱신
+        String email = tokenService.getEmailFromToken(token);
+        String newToken = tokenService.refreshAppAccessToken(email);
+
+        // 새로운 토큰으로 쿠키 업데이트
+        Cookie cookie = new Cookie("token", newToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24);
+        response.addCookie(cookie);
+
+        User user = userService.getUserByEmail(email);
+        logger.info("Token refreshed successfully for user: {}", email);
+
+
+        return ResponseEntity.ok(LoginResponseDTO.builder()
+                .message("Token refreshed")
+                .user(user)
+                .appAccessToken(newToken)
+                .isNewUser(false)  // 토큰 갱신은 항상 기존 사용자
+                .build());
+    }
+
+    @Operation(summary = "로그아웃", description = "사용자 로그아웃 처리")
+    @GetMapping("/logout")
     public ResponseEntity<String> handleLogout(HttpServletResponse response) {
-        // 쿠키에서 토큰 제거
         Cookie cookie = new Cookie("token", null);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge(0); // 즉시 만료
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
 
         logger.info("로그아웃 성공: 토큰 쿠키 제거 완료");
         return ResponseEntity.ok("Logged out successfully");
     }
-
-
-////////////////// code 값을 얻기 위한 테스트
-
-   /* @GetMapping("/login/oauth2/code/google")
-    public ResponseEntity<String> handleAuthorizationCode(@RequestParam("code") String code) {
-        // Authorization Code 로그 출력
-        logger.info("Received Authorization Code: {}", code);
-
-        // 클라이언트에게도 Authorization Code 반환
-        return ResponseEntity.ok("Authorization Code: " + code);
-    }*/
-
-    ////////////////// code 값을 얻기 위한 테스트
 }

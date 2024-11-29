@@ -46,6 +46,17 @@ public class User {
     private UserRole role;
 
     @NotNull
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
+    private String refreshToken; // Google Refresh Token 값
+
+    @NotNull
+    @Column(name = "app_access_token", columnDefinition = "TEXT")
+    private String appAccessToken; // 애플리케이션 Access Token
+
+    @Column(name = "app_token_expires_at")
+    private LocalDateTime appTokenExpiresAt; // 애플리케이션 토큰 만료일자
+
+    @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
