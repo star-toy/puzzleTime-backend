@@ -22,7 +22,7 @@ public class PuzzlePlay {
     private Long puzzlePlayId;
 
     @NotNull
-    @Column(name = "puzzle_play_uid, ", length = 36, nullable = false)
+    @Column(name = "puzzle_play_uid", length = 36, nullable = false)
     private String puzzlePlayUid;
 
     @NotNull
