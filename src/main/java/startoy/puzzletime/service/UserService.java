@@ -3,23 +3,16 @@ package startoy.puzzletime.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 import startoy.puzzletime.domain.User;
 import startoy.puzzletime.domain.UserRole;
+import startoy.puzzletime.dto.user.UserWithStatusDTO;
 import startoy.puzzletime.exception.CustomException;
 import startoy.puzzletime.exception.ErrorCode;
 import startoy.puzzletime.repository.UserRepository;
-import org.springframework.security.oauth2.jwt.*;
-
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,68 +20,76 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
+    private final TokenService tokenService;
 
-    public String getUserId(OAuth2AuthenticationToken authentication) {
-        if (authentication != null && authentication.isAuthenticated()) {
-            return authentication.getPrincipal().getAttribute("sub");
+
+    // 사용자 조회 또는 생성 로직
+    public UserWithStatusDTO findOrCreateUser(String email, String name, String provider, String providerId, String refreshToken) {
+        Optional<User> existingUser = userRepository.findByEmail(email);
+
+        if (existingUser.isPresent()) {
+            User user = updateExistingUser(existingUser.get(), refreshToken);
+
+            logger.info("Existing user logged in: {}", email);
+
+            return new UserWithStatusDTO(user, false);
         } else {
-            return "";
+            User newUser = createNewUser(email, name, provider, providerId, refreshToken);
+
+            logger.info("New user registered: {}", email);
+            return new UserWithStatusDTO(newUser, true);
         }
     }
 
-    // 사용자 조회 또는 생성 로직
-    public User findOrCreateUser(String email, String name, String provider, String providerId) {
-        return userRepository.findByEmail(email).orElseGet(() -> createNewUser(email, name, provider, providerId));
+    // 기존 사용자 정보 업데이트
+    private User updateExistingUser(User user, String refreshToken) {
+
+        // refresh_token이 제공된 경우에만 업데이트
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            user.setRefreshToken(refreshToken);
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+        String appAccessToken = tokenService.createAppAccessToken(user);
+        user.setAppAccessToken(appAccessToken);
+        return userRepository.save(user);
     }
 
-
-    public User createNewUser(String email, String name, String provider, String providerId) {
+    // 새 사용자 생성
+    public User createNewUser(String email, String name, String provider, String providerId, String refreshToken) {
         User newUser = User.builder()
                 .email(email)
                 .userName(name != null ? name : "New User")
                 .provider(provider)
                 .providerId(providerId)
+                .refreshToken(refreshToken)
                 .role(UserRole.USER)
                 .createdAt(LocalDateTime.now())
                 .build();
+
+        // 토큰 생성 및 설정
+        String appAccessToken = tokenService.createAppAccessToken(newUser);
+        newUser.setAppAccessToken(appAccessToken);
+
         return userRepository.save(newUser);
-    }
-
-    // Access Token으로 이메일 가져오기 (Google Userinfo API 호출)
-    public String getEmailFromAccessToken(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        try {
-            // Google Userinfo API 호출
-            ResponseEntity<Map> response = restTemplate.exchange(
-                    "https://www.googleapis.com/oauth2/v3/userinfo",
-                    HttpMethod.GET,
-                    entity,
-                    Map.class
-            );
-
-            // 응답에서 이메일 추출
-            Map<String, Object> userInfo = response.getBody();
-            if (userInfo != null && userInfo.containsKey("email")) {
-                String email = (String) userInfo.get("email");
-                logger.debug("Extracted email from Userinfo API: {}", email); // 디버깅용 로그
-                return email;
-            } else {
-                throw new RuntimeException("Userinfo API response does not contain email");
-            }
-        } catch (Exception e) {
-            logger.error("Failed to retrieve email from Access Token: {}", e.getMessage());
-            return null; // 이메일을 가져오지 못한 경우
-        }
     }
 
     // 이메일로 사용자 ID 조회
     public Long getUserIdByEmail(String email) {
         return userRepository.findByEmail(email)
-                .map(User::getId) // user_id 반환
+                .map(User::getId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    // 이메일로 사용자 조회
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    // ID로 사용자 조회
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }
