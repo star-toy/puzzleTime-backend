@@ -54,7 +54,7 @@ public class MyPageService {
                 .puzzleUid(puzzlePlay.getPuzzle().getPuzzleUid())
                 .puzzleIndex(puzzlePlay.getPuzzle().getPuzzleIndex())
                 .imageUrl(puzzlePlay.getPuzzle().getPuzzleImage().getImageUrl())
-                .completed(puzzlePlay.getIsCompleted())
+                .completed(puzzlePlay.getIsCompleted() != null && puzzlePlay.getIsCompleted())
                 .build();
     }
 }
