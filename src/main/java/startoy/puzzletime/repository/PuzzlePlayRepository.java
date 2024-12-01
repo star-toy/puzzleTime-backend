@@ -69,7 +69,7 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
      * #endregion */
 
 
-    Optional<PuzzlePlay> findByPuzzle_PuzzleIdAndUser_Id(Long puzzleId, Long userId);
+    List<PuzzlePlay> findByPuzzle_PuzzleIdAndUser_Id(Long puzzleId, Long userId);
 
     Optional<PuzzlePlay> findByUserAndPuzzle(User user, Puzzle puzzle);
 
