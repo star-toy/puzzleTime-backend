@@ -12,9 +12,7 @@ import startoy.puzzletime.dto.puzzle.PuzzleResponseDTO;
 import startoy.puzzletime.exception.CustomException;
 import startoy.puzzletime.exception.ErrorCode;
 import startoy.puzzletime.repository.*;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import startoy.puzzletime.dto.puzzle.ArtworkWithPuzzlesResponseDTO;
 
@@ -59,7 +57,7 @@ public class ArtworkService {
         Long userId;
         if (userEmail != null) {
             userId = userService.getUserIdByEmail(userEmail); // userEmail -> userId 변환
-            logger.error("userId: {}", userId);
+            logger.info("userId: {}", userId);
         } else {
             userId = null;
         }
@@ -72,10 +70,17 @@ public class ArtworkService {
                             .map(ImageStorage::getImageUrl)
                             .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
 
-                    boolean isCompleted = userId != null && puzzlePlayRepository.findByPuzzle_PuzzleIdAndUser_Id(
-                                    puzzle.getPuzzleId(), userId)
-                            .map(PuzzlePlay::getIsCompleted)
-                            .orElse(false);
+                    boolean isCompleted = false;
+                    if (userId != null) {
+                        // 최신 플레이 기록을 기준으로 완료 여부 확인
+                        List<PuzzlePlay> puzzlePlays = puzzlePlayRepository
+                                .findByPuzzle_PuzzleIdAndUser_Id(puzzle.getPuzzleId(), userId);
+
+                        // puzzlePlays가 비어있으면 (플레이 기록이 없으면) false 유지
+                        // 플레이 기록이 있으면 완료 여부 확인
+                        isCompleted = !puzzlePlays.isEmpty() &&
+                                puzzlePlays.stream().anyMatch(PuzzlePlay::getIsCompleted);
+                    }
 
                     return new PuzzleResponseDTO(
                             puzzle.getPuzzleUid(),
