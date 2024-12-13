@@ -1,5 +1,6 @@
 package startoy.puzzletime.dto.puzzlePlay;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -10,5 +11,6 @@ public class PuzzlePlayRequest {
     @NotNull
     private String puzzleUid;
     @NotNull
+    @JsonProperty("isCompleted")
     private boolean isCompleted;
 }
