@@ -25,9 +25,9 @@ public class PuzzlePlayController {
     private final TokenService tokenService;
 
     @Operation(summary = "Save Puzzle Play", description = "퍼즐 진행 상태를 저장합니다.")
-    @PostMapping("/{puzzleUid}")
+    @PostMapping("/{puzzlePlayUID}")
     public ResponseEntity<PuzzlePlayResponse> savePuzzlePlay(
-            @PathVariable @Parameter(description = "퍼즐 UID", required = true) String puzzleUid,
+            @PathVariable @Parameter(description = "퍼즐 play UID", required = true) String puzzlePlayUID,
             @RequestBody @Parameter(description = "퍼즐 진행 상태", required = true) PuzzlePlayRequest request,
             @CookieValue(name = "token") String token) {  // 쿠키에서 앱 토큰 가져오기
 
@@ -35,7 +35,7 @@ public class PuzzlePlayController {
         String email = tokenService.getEmailFromToken(token);
         Long userId = userService.getUserIdByEmail(email);
 
-        PuzzlePlayResponse response = puzzlePlayService.savePuzzlePlay(puzzleUid, userId.toString(), request);
+        PuzzlePlayResponse response = puzzlePlayService.savePuzzlePlay(puzzlePlayUID, userId, request);
         return ResponseEntity.ok(response);
     }
 }

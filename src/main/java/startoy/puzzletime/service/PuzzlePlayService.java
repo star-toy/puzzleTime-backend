@@ -24,36 +24,37 @@ public class PuzzlePlayService {
     private final UserRepository userRepository;
 
     @Transactional
-    public PuzzlePlayResponse savePuzzlePlay(String puzzleUid, String userId, PuzzlePlayRequest request) {
-        // 사용자 및 퍼즐 확인
-        User user = userRepository.findById(Long.parseLong(userId))
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Puzzle puzzle = puzzleRepository.findByPuzzleUid(puzzleUid)
-                .orElseThrow(() -> new IllegalArgumentException("Puzzle not found"));
+    public PuzzlePlayResponse savePuzzlePlay(String puzzlePlayUID, long userId, PuzzlePlayRequest request) {
 
-        // 기존 퍼즐 진행 상태 조회
-        PuzzlePlay puzzlePlay = puzzlePlayRepository.findByUserAndPuzzle(user, puzzle)
+        Puzzle puzzle = puzzleRepository.findByPuzzleUid(request.getPuzzleUid()).get();
+
+        // 기존 퍼즐 진행 조회 또는 생성
+        PuzzlePlay puzzlePlay = puzzlePlayRepository.findByPuzzlePlayUid(puzzlePlayUID)
                 .orElseGet(() -> PuzzlePlay.builder()
-                        .puzzlePlayUid(UUID.randomUUID().toString())
+                        .puzzlePlayUid(puzzlePlayUID)
                         .puzzle(puzzle)
-                        .user(user)
-                        .isCompleted(false)
+                        .user(userRepository.findById(userId).get())
                         .createdAt(LocalDateTime.now())
                         .build());
 
         // 진행 상태 업데이트
         puzzlePlay.setPuzzlePlayData(request.getPuzzlePlayData());
+        puzzlePlay.setIsCompleted(request.isCompleted());
         puzzlePlay.setUpdatedAt(LocalDateTime.now());
 
         // 저장
         PuzzlePlay savedPuzzlePlay = puzzlePlayRepository.save(puzzlePlay);
-        
+
+        // Artwork 내 퍼즐 완료 현황 계산
+        String completedPuzzlesFraction = puzzlePlayRepository.getCompletedPuzzlesFractionByUid(userId, puzzle.getPuzzleId());
+
         return PuzzlePlayResponse.builder()
                 .puzzlePlayUid(savedPuzzlePlay.getPuzzlePlayUid())
                 .puzzleUid(savedPuzzlePlay.getPuzzle().getPuzzleUid())
-                .userId(savedPuzzlePlay.getUser().getId())
-                .isCompleted(savedPuzzlePlay.getIsCompleted())
                 .puzzlePlayData(savedPuzzlePlay.getPuzzlePlayData())
+                .isCompleted(savedPuzzlePlay.getIsCompleted())
+                .completedPuzzlesFraction(completedPuzzlesFraction)
                 .build();
+
     }
 }

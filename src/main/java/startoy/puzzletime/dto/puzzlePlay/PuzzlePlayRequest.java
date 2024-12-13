@@ -7,4 +7,8 @@ import lombok.Data;
 public class PuzzlePlayRequest {
     @NotNull
     private String puzzlePlayData;
+    @NotNull
+    private String puzzleUid;
+    @NotNull
+    private boolean isCompleted;
 }

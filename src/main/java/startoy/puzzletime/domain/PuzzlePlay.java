@@ -39,8 +39,7 @@ public class PuzzlePlay {
     @Column(name = "is_completed")
     private Boolean isCompleted;
 
-    @NotNull
-    @Column(name = "image_id", nullable = false)
+    @Column(name = "image_id", nullable = true)
     private Long imageId;
 
     @Column(name = "puzzle_play_data", columnDefinition = "json")
