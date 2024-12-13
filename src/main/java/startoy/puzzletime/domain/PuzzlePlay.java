@@ -43,8 +43,8 @@ public class PuzzlePlay {
     @Column(name = "image_id", nullable = false)
     private Long imageId;
 
-    @Column(name = "pieces_data", columnDefinition = "json")
-    private String piecesData;
+    @Column(name = "puzzle_play_data", columnDefinition = "json")
+    private String puzzlePlayData;
 
     @NotNull
     @Column(name = "created_at", nullable = false)
