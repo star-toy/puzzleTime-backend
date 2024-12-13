@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import startoy.puzzletime.dto.puzzle.GetPuzzleResponse;
@@ -27,17 +28,21 @@ public class PuzzleService {
         }
 
         // 필수 필드 검증
-        validateRequiredFields(result, "puzzleUid", "imageUrl");
+        validateRequiredFields(result, "puzzleUid", "puzzleImageUrl");
+
+        // puzzlePlayUid 없으면
+        String puzzlePlayUid = result.get("puzzlePlayUid").toString();
+        if (puzzlePlayUid.isEmpty()) {
+            // 신규 UID 생성
+            puzzlePlayUid = UUID.randomUUID().toString();
+        }
 
         // 값 추출 및 DTO 생성
         return GetPuzzleResponse.builder()
                 .puzzleUid(getString(result, "puzzleUid"))
-                .imageUrl(getString(result, "imageUrl"))
-                .puzzlePlayUid(getString(result, "puzzlePlayUid"))
-                .userId(getString(result, "userId"))
-                .isCompleted(getBoolean(result, "isCompleted"))
-                .piecesCount(getInt(result, "piecesCount"))
-                .piecesData(getString(result, "piecesData"))
+                .puzzleImageUrl(getString(result, "puzzleImageUrl"))
+                .puzzlePlayUid(puzzlePlayUid)
+                .puzzlePlayData(getString(result, "puzzlePlayData"))
                 .build();
     }
 

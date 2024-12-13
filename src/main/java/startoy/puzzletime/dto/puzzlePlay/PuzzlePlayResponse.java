@@ -10,5 +10,5 @@ public class PuzzlePlayResponse {
     private String puzzleUid;
     private Long userId;
     private boolean isCompleted;
-    private String piecesData;
+    private String puzzlePlayData;
 }

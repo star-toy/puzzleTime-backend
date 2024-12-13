@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class PuzzlePlayRequest {
     @NotNull
-    private String piecesData;
+    private String puzzlePlayData;
 }

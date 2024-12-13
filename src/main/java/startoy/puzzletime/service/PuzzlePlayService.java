@@ -42,7 +42,7 @@ public class PuzzlePlayService {
                         .build());
 
         // 진행 상태 업데이트
-        puzzlePlay.setPiecesData(request.getPiecesData());
+        puzzlePlay.setPuzzlePlayData(request.getPuzzlePlayData());
         puzzlePlay.setUpdatedAt(LocalDateTime.now());
 
         // 저장
@@ -53,7 +53,7 @@ public class PuzzlePlayService {
                 .puzzleUid(savedPuzzlePlay.getPuzzle().getPuzzleUid())
                 .userId(savedPuzzlePlay.getUser().getId())
                 .isCompleted(savedPuzzlePlay.getIsCompleted())
-                .piecesData(savedPuzzlePlay.getPiecesData())
+                .puzzlePlayData(savedPuzzlePlay.getPuzzlePlayData())
                 .build();
     }
 }
