@@ -3,6 +3,7 @@ package startoy.puzzletime.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.ColumnResult;
@@ -41,6 +42,33 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
             @Param("puzzleUid") String puzzleUid,
             @Param("userId") String userId
     );
+
+    // 퍼즐 Play UID로 해당 퍼즐 플레이 정보를 조회
+    Optional<PuzzlePlay> findByPuzzlePlayUid(String puzzlePlayUID);
+
+    // Artwork 내 퍼즐 완료 현황 계산 : "완료한 퍼즐 수/총 퍼즐 수" : "1/4", "2/4",,,
+    @Query(value = """
+        SELECT CONCAT(comp.completedPuzzleCount, '/', tot.totalPuzzleCount) AS completedPuzzlesFraction
+          FROM (
+            -- Completed Puzzle Count
+            SELECT COUNT(tpp.puzzle_play_id) AS completedPuzzleCount
+              FROM tb_puzzle_play tpp
+             WHERE tpp.puzzle_id = :puzzleId
+               AND tpp.user_id = :userId
+               AND tpp.is_completed = true
+          ) AS comp,
+          (
+            -- Total Puzzle Count
+            SELECT COUNT(tp.puzzle_id) AS totalPuzzleCount
+              FROM tb_puzzles tp
+             WHERE tp.artwork_id = (
+               SELECT tp2.artwork_id
+                 FROM tb_puzzles tp2
+                WHERE tp2.puzzle_id = :puzzleId
+             )
+          ) AS tot;
+        """, nativeQuery = true)
+    String getCompletedPuzzlesFractionByUid(@Param("userId") long userId, @Param("puzzleId") long puzzleId);
 
     List<PuzzlePlay> findByPuzzle_PuzzleIdAndUser_Id(Long puzzleId, Long userId);
 
