@@ -2,6 +2,7 @@ package startoy.puzzletime.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/auth")
+@SecurityRequirement(name = "cookieAuth") // 쿠키 인증 요구사항 추가
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
