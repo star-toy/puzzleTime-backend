@@ -42,7 +42,7 @@ public class TokenService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 토큰 만료 여부 확인
+        // 토큰 만료 여부 확인(토큰이 아직 유효하면(isAppTokenExpired(user)가 false) 기존 토큰을 반환.)
         if (!isAppTokenExpired(user)) {
             logger.info("Token is still valid for user: {}", email);
             return user.getAppAccessToken();
