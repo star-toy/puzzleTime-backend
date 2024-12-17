@@ -50,4 +50,7 @@ public class Artwork {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @NotNull
+    @Column(name = "artwork_seq", nullable = false)
+    private Integer artworkSeq; // 추가된 컬럼
 }
