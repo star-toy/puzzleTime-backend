@@ -33,7 +33,8 @@ public class ArtworkService {
                 .map(artwork -> new ArtworkDTO(
                         artwork.getArtworkUid(),
                         artwork.getArtworkTitle(),
-                        artwork.getArtworkDescription()
+                        artwork.getArtworkDescription(),
+                        artwork.getArtworkSeq()
                 ))
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTWORK_NOT_FOUND));
     }
@@ -50,7 +51,8 @@ public class ArtworkService {
         ArtworkDTO artworkDto = new ArtworkDTO(
                 artwork.getArtworkUid(),
                 artwork.getArtworkTitle(),
-                artwork.getArtworkDescription()
+                artwork.getArtworkDescription(),
+                artwork.getArtworkSeq()
         );
 
         // userId로 변경
