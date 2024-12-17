@@ -65,6 +65,7 @@ public class ThemeService {
                             artwork.getArtworkUid(),
                             artwork.getArtworkTitle(),
                             artwork.getArtworkDescription(),
+                            artwork.getArtworkSeq(),
                             artworkImageUrl
                     );
                 })
