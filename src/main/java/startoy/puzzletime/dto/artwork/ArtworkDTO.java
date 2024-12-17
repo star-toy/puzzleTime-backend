@@ -13,4 +13,5 @@ public class ArtworkDTO {
     private String artworkUid;
     private String artworkTitle;
     private String artworkDescription;
+    private Integer artworkSeq; // 순서 정보 추가
 }
