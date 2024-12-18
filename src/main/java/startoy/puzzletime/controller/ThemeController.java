@@ -1,12 +1,11 @@
 package startoy.puzzletime.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import startoy.puzzletime.dto.theme.ThemeWithArtworksAndPuzzlesResponseDTO;
 import startoy.puzzletime.dto.theme.ThemeWithArtworksResponseDTO;
 import startoy.puzzletime.exception.CustomException;
 import startoy.puzzletime.exception.ErrorCode;
@@ -39,18 +38,14 @@ public class ThemeController {
         return ResponseEntity.ok(allThemesWithArtworks );
     }
 
-     // 특정 테마 UID에 해당하는 테마와 아트웍 리스트를 조회하는 API
-    @GetMapping("/{themeUid}")
-    public ResponseEntity<ThemeWithArtworksResponseDTO> getThemeWithArtworksByUid(@PathVariable String themeUid) {
 
-        logger.info("테마 UID '{}'에 해당하는 테마와 아트웍 조회 요청이 들어왔습니다.", themeUid);
-        ThemeWithArtworksResponseDTO themeWithArtworksByUid = themeService.getThemeWithArtworksByUid(themeUid);
-
-        if (themeWithArtworksByUid == null) {
-            logger.warn("테마 UID '{}'에 해당하는 데이터가 없습니다.", themeUid);
-            throw new CustomException(ErrorCode.THEME_NOT_FOUND);
-        }
-
-        return ResponseEntity.ok(themeWithArtworksByUid);
+    @Operation(summary = "테마에 관련된 artwork 및 puzzle 정보", description = "테마UID 값에 따른 artwork 및 puzzle 정보 조회")
+    @GetMapping("/{themeUid}/artworks")
+    public ResponseEntity<ThemeWithArtworksAndPuzzlesResponseDTO> getThemeWithArtworksAndPuzzles(
+            @PathVariable String themeUid,
+            @RequestParam(value = "email", required = false) String userEmail) {
+        logger.info("테마 UID '{}'의 아트웍 및 퍼즐 정보 조회 요청을 받았습니다.", themeUid);
+        ThemeWithArtworksAndPuzzlesResponseDTO response = themeService.getThemeWithArtworksAndPuzzlesByUid(themeUid, userEmail);
+        return ResponseEntity.ok(response);
     }
 }
