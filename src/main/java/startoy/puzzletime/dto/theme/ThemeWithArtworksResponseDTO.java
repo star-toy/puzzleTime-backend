@@ -17,7 +17,7 @@ import java.util.List;
 public class ThemeWithArtworksResponseDTO {
     private String themeUid;      // 테마 UID
     private String themeTitle;   // 테마 제목
-    private String themeImageUrl;   // 테마 이미지 URL
+    private String imageUrl;   // 테마 이미지 URL
     private BgmDTO bgm;                  // BGM 정보를 담은 DTO
     private List<ArtworkWithImageDTO> artworks; // 테마에 포함된 아트웍 리스트
 }
