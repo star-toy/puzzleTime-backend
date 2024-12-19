@@ -8,6 +8,7 @@ import startoy.puzzletime.domain.Artwork;
 import startoy.puzzletime.domain.ImageStorage;
 import startoy.puzzletime.domain.PuzzlePlay;
 import startoy.puzzletime.dto.artwork.ArtworkDTO;
+import startoy.puzzletime.dto.artwork.CompleteArtworksResponse;
 import startoy.puzzletime.dto.puzzle.PuzzleResponseDTO;
 import startoy.puzzletime.exception.CustomException;
 import startoy.puzzletime.exception.ErrorCode;
@@ -96,4 +97,11 @@ public class ArtworkService {
 
         return new ArtworkWithPuzzlesResponseDTO(artworkDto, puzzles, userEmail);
     }
+
+    // 완성한 artwork과 reward 조회
+    public List<CompleteArtworksResponse> findCompleteArtworks(Long userId) {
+        List<CompleteArtworksResponse> response = artworkRepository.findCompleteArtworks(userId);
+        return response;
+    }
+
 }
