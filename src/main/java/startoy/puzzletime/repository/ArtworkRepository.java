@@ -2,10 +2,12 @@ package startoy.puzzletime.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import startoy.puzzletime.domain.Artwork;
 import startoy.puzzletime.dto.artwork.CompleteArtworksResponse;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
@@ -18,7 +20,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
 
     // userId로 완성한 artwork과 reward 조회
     @Query(value = """
-            SELECT ta.artwork_uid, atis.image_url as artwork_url, rtis.image_url as reward_url
+            SELECT ta.artwork_seq as artworkSeq, ta.artwork_uid as artworkUid, atis.image_url as artworkImgUrl, rtis.image_url as rewardImgUrl
               FROM tb_user_artworks tua
               join tb_artworks ta
                 on tua.artwork_id = ta.artwork_id
@@ -29,5 +31,5 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
              WHERE tua.user_id = :userId
                and tua.is_completed = '1'
             """, nativeQuery = true)
-    List<CompleteArtworksResponse> findCompleteArtworks(Long userId);
+    List<Map<String, Object>> findCompleteArtworks(@Param("userId") Long userId);
 }

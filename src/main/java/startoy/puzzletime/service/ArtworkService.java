@@ -13,7 +13,10 @@ import startoy.puzzletime.dto.puzzle.PuzzleResponseDTO;
 import startoy.puzzletime.exception.CustomException;
 import startoy.puzzletime.exception.ErrorCode;
 import startoy.puzzletime.repository.*;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import startoy.puzzletime.dto.puzzle.ArtworkWithPuzzlesResponseDTO;
 
@@ -100,8 +103,24 @@ public class ArtworkService {
 
     // 완성한 artwork과 reward 조회
     public List<CompleteArtworksResponse> findCompleteArtworks(Long userId) {
-        List<CompleteArtworksResponse> response = artworkRepository.findCompleteArtworks(userId);
+        List<Map<String, Object>> result = artworkRepository.findCompleteArtworks(userId);
+        List<CompleteArtworksResponse> response = convertToCompleteArtworksResponse(result);
         return response;
+    }
+
+    public List<CompleteArtworksResponse> convertToCompleteArtworksResponse(List<Map<String, Object>> maps) {
+        return maps.stream()
+                .map(this::mapToCompleteArtworksResponse)
+                .collect(Collectors.toList());
+    }
+
+    private CompleteArtworksResponse mapToCompleteArtworksResponse(Map<String, Object> map) {
+        return CompleteArtworksResponse.builder()
+                .artworkSeq(map.getOrDefault("artworkSeq", 0) instanceof Integer ? (Integer) map.getOrDefault("artworkSeq", 0) : 0)
+                .artworkUid((String) map.getOrDefault("artworkUid", ""))
+                .artworkImgUrl((String) map.getOrDefault("artworkImgUrl", ""))
+                .rewardImgUrl((String) map.getOrDefault("rewardImgUrl", ""))
+                .build();
     }
 
 }
