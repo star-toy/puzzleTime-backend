@@ -14,6 +14,8 @@ import startoy.puzzletime.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/puzzlePlays")
@@ -33,7 +35,7 @@ public class PuzzlePlayController {
 
         // 토큰에서 이메일 추출 후 사용자 ID 조회
         String email = tokenService.getEmailFromToken(token);
-        Long userId = userService.getUserIdByEmail(email);
+        Optional<Long> userId = userService.findUserIdByEmail(email);
 
         PuzzlePlayResponse response = puzzlePlayService.savePuzzlePlay(puzzlePlayUID, userId, request);
         return ResponseEntity.ok(response);

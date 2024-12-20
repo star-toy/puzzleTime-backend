@@ -81,6 +81,12 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
+    // 이메일로 사용자 ID 조회 : 게스트도 사용할 수 있는 로직에 활용
+    public Optional<Long> findUserIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(User::getId); // 데이터가 없을 경우 빈 Optional 반환
+    }
+
     // 이메일로 사용자 조회
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)

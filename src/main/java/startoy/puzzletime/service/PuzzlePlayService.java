@@ -13,6 +13,7 @@ import startoy.puzzletime.repository.PuzzleRepository;
 import startoy.puzzletime.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,19 +25,18 @@ public class PuzzlePlayService {
     private final UserRepository userRepository;
 
     @Transactional
-    public PuzzlePlayResponse savePuzzlePlay(String puzzlePlayUID, long userId, PuzzlePlayRequest request) {
+    public PuzzlePlayResponse savePuzzlePlay(String puzzlePlayUID, Optional<Long> userId, PuzzlePlayRequest request) {
 
         Puzzle puzzle = puzzleRepository.findByPuzzleUid(request.getPuzzleUid()).get();
 
         // 기존 퍼즐 진행 조회 또는 생성
         PuzzlePlay puzzlePlay = puzzlePlayRepository.findByPuzzlePlayUid(puzzlePlayUID)
-                .orElseGet(() -> PuzzlePlay.builder()
-                        .puzzlePlayUid(puzzlePlayUID)
-                        .puzzle(puzzle)
-                        .user(userRepository.findById(userId).get())
-                        .createdAt(LocalDateTime.now())
-                        .build());
-
+                    .orElseGet(() -> PuzzlePlay.builder()
+                            .puzzlePlayUid(puzzlePlayUID)
+                            .puzzle(puzzle)
+                            .user(userRepository.findById(userId.orElse(0L)).get()) //
+                            .createdAt(LocalDateTime.now())
+                            .build());
         // 진행 상태 업데이트
         puzzlePlay.setPuzzlePlayData(request.getPuzzlePlayData());
         puzzlePlay.setIsCompleted(request.isCompleted());
@@ -46,7 +46,13 @@ public class PuzzlePlayService {
         PuzzlePlay savedPuzzlePlay = puzzlePlayRepository.save(puzzlePlay);
 
         // Artwork 내 퍼즐 완료 현황 계산
-        String completedPuzzlesFraction = puzzlePlayRepository.getCompletedPuzzlesFractionByUid(userId, puzzle.getPuzzleId());
+        String completedPuzzlesFraction;
+        if (userId.isPresent()) { // 회원인 경우
+            // 현황 계산
+            completedPuzzlesFraction = puzzlePlayRepository.getCompletedPuzzlesFractionByUid(userId.get(), puzzle.getPuzzleId());
+        } else { // 비회원인 경우
+            completedPuzzlesFraction = request.isCompleted() ? "1/4" : "0/4";
+        }
 
         return PuzzlePlayResponse.builder()
                 .puzzlePlayUid(savedPuzzlePlay.getPuzzlePlayUid())
