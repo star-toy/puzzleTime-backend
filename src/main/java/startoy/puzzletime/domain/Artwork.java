@@ -52,5 +52,9 @@ public class Artwork {
 
     @NotNull
     @Column(name = "artwork_seq", nullable = false)
-    private Integer artworkSeq; // 추가된 컬럼
+    private Integer artworkSeq;
+
+    @NotNull
+    @Column(name = "reward_image_id", nullable = false)
+    private Integer rewardImageId;
 }
