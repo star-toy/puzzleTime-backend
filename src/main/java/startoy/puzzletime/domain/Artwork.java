@@ -56,6 +56,5 @@ public class Artwork {
 
     @NotNull
     @Column(name = "reward_image_id", nullable = false)
-    @NotNull
     private Integer rewardImageId;
 }
