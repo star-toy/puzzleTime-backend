@@ -6,10 +6,12 @@ import org.springframework.transaction.annotation.Transactional;
 import startoy.puzzletime.domain.Puzzle;
 import startoy.puzzletime.domain.PuzzlePlay;
 import startoy.puzzletime.domain.User;
+import startoy.puzzletime.domain.UserArtwork;
 import startoy.puzzletime.dto.puzzlePlay.PuzzlePlayRequest;
 import startoy.puzzletime.dto.puzzlePlay.PuzzlePlayResponse;
 import startoy.puzzletime.repository.PuzzlePlayRepository;
 import startoy.puzzletime.repository.PuzzleRepository;
+import startoy.puzzletime.repository.UserArtworkRepository;
 import startoy.puzzletime.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,7 @@ public class PuzzlePlayService {
     private final PuzzlePlayRepository puzzlePlayRepository;
     private final PuzzleRepository puzzleRepository;
     private final UserRepository userRepository;
+    private final UserArtworkRepository userArtworkRepository;
 
     @Transactional
     public PuzzlePlayResponse savePuzzlePlay(String puzzlePlayUID, Optional<Long> userId, PuzzlePlayRequest request) {
@@ -44,7 +47,7 @@ public class PuzzlePlayService {
         puzzlePlay.setUpdatedAt(LocalDateTime.now());
 
         // 저장
-        PuzzlePlay savedPuzzlePlay = puzzlePlayRepository.save(puzzlePlay);
+        puzzlePlayRepository.save(puzzlePlay);
 
         // Artwork 내 퍼즐 완료 현황 계산
         String completedPuzzlesFraction;
@@ -52,15 +55,26 @@ public class PuzzlePlayService {
             // 퍼즐 완료 현황 계산
             Map<String, String> puzzleFractionInfo = puzzlePlayRepository.getCompletedPuzzlesFractionByUid(userId.get(), puzzle.getPuzzleId());
             completedPuzzlesFraction = String.format("%s/%s", puzzleFractionInfo.get("completedPuzzleCount"),puzzleFractionInfo.get("completedPuzzleCount"));
+
+            // 모든 퍼즐 완성 시 UserArtwork 저장
+            if (puzzleFractionInfo.get("completedPuzzleCount").equals(puzzleFractionInfo.get("completedPuzzleCount"))) {
+                UserArtwork userArtwork = UserArtwork.builder()
+                        .userArtworkUid(UUID.randomUUID().toString())
+                        .artwork(puzzle.getArtwork())
+                        .user(userRepository.findById(userId.get()).get())
+                        .isCompleted(request.isCompleted())
+                        .build();
+                userArtworkRepository.save(userArtwork);
+            }
         } else { // 비회원인 경우
             completedPuzzlesFraction = request.isCompleted() ? "1/4" : "0/4";
         }
 
         return PuzzlePlayResponse.builder()
-                .puzzlePlayUid(savedPuzzlePlay.getPuzzlePlayUid())
-                .puzzleUid(savedPuzzlePlay.getPuzzle().getPuzzleUid())
-                .puzzlePlayData(savedPuzzlePlay.getPuzzlePlayData())
-                .isCompleted(savedPuzzlePlay.getIsCompleted())
+                .puzzlePlayUid(puzzlePlay.getPuzzlePlayUid())
+                .puzzleUid(puzzlePlay.getPuzzle().getPuzzleUid())
+                .puzzlePlayData(puzzlePlay.getPuzzlePlayData())
+                .isCompleted(puzzlePlay.getIsCompleted())
                 .completedPuzzlesFraction(completedPuzzlesFraction)
                 .build();
 
