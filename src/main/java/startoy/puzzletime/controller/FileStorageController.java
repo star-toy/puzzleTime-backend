@@ -22,7 +22,7 @@ public class FileStorageController {
     private final FileStorageService fileStorageService;
 
     
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    /*@PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "파일 업로드")
     public ResponseEntity<FileStorageDTO> uploadFile(@RequestPart("file") MultipartFile file) {
 
@@ -67,5 +67,5 @@ public class FileStorageController {
             return ResponseEntity.status(500).body(null); // 500 Internal Server Error
         }
     }
-    
+    */
 }
