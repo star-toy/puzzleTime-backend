@@ -63,31 +63,42 @@ public class PuzzlePlayService {
 
     }
 
-    // 사용자 이메일 기반으로 미완성 퍼즐 조회
+    // 사용자 이메일 기반으로 플레이 이력이 있는 아트웍의 퍼즐 조회
     public PlayingPuzzlesResponseDTO getPlayingPuzzles(String userEmail) {
+        // 플레이 이력이 있는 아트웍 UID 가져오기
+        List<String> artworkUids = puzzleRepository.findDistinctArtworkUidsByUserEmail(userEmail);
 
-        logger.info("Fetching playing puzzles for user: {}", userEmail);
+        // 아트웍별로 퍼즐 가져오기
+        List<PlayingPuzzlesResponseDTO.ArtworkWithPuzzles> artworkWithPuzzlesList = artworkUids.stream()
+                .map(artworkUid -> {
+                    // 해당 아트웍의 퍼즐과 상태 가져오기
+                    List<Object[]> puzzlesWithStatus = puzzleRepository.findAllPuzzlesWithPlayStatusByArtworkUidAndUserEmail(artworkUid, userEmail);
 
-        // 플레이 중인 퍼즐 정보 조회
-        List<PuzzlePlay> playingPuzzles = puzzlePlayRepository.findPlayingPuzzlesByUserEmail(userEmail);
+                    // 아트웍 이미지 URL
+                    String artworkImageUrl = puzzlesWithStatus.stream()
+                            .findFirst()
+                            .map(row -> ((Puzzle) row[0]).getArtwork().getArtworkImage().getImageUrl())
+                            .orElse("");
 
-        // 아트웍별로 그룹화
-        Map<String, List<PuzzlePlay>> groupedByArtwork = playingPuzzles.stream()
-                .collect(Collectors.groupingBy(puzzlePlay -> puzzlePlay.getPuzzle().getArtwork().getArtworkUid()));
+                    // 퍼즐 리스트 생성
+                    List<PlayingPuzzlesResponseDTO.PuzzleDTO> puzzles = puzzlesWithStatus.stream()
+                            .map(row -> {
+                                Puzzle puzzle = (Puzzle) row[0];
+                                PuzzlePlay puzzlePlay = (PuzzlePlay) row[1];
 
-        // 그룹화된 데이터를 DTO로 변환
-        List<PlayingPuzzlesResponseDTO.ArtworkWithPuzzles> artworkWithPuzzlesList = groupedByArtwork.entrySet()
-                .stream()
-                .map(entry -> {
-                    // 첫 번째 PuzzlePlay에서 Artwork 정보를 가져옴
-                    String imageUrl = entry.getValue().get(0).getPuzzle().getArtwork().getArtworkImage().getImageUrl();
+                                return PlayingPuzzlesResponseDTO.PuzzleDTO.builder()
+                                        .puzzleUid(puzzle.getPuzzleUid())
+                                        .puzzleIndex(puzzle.getPuzzleIndex())
+                                        .imageUrl(puzzle.getPuzzleImage().getImageUrl())
+                                        .isCompleted(puzzlePlay != null && Boolean.TRUE.equals(puzzlePlay.getIsCompleted()))
+                                        .build();
+                            })
+                            .collect(Collectors.toList());
 
                     return PlayingPuzzlesResponseDTO.ArtworkWithPuzzles.builder()
-                            .artworkUid(entry.getKey())
-                            .imageUrl(imageUrl) // 아트웍 이미지 URL 설정
-                            .puzzles(entry.getValue().stream()
-                                    .map(this::convertToPuzzleDTO)
-                                    .collect(Collectors.toList()))
+                            .artworkUid(artworkUid)
+                            .imageUrl(artworkImageUrl)
+                            .puzzles(puzzles)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -97,12 +108,4 @@ public class PuzzlePlayService {
                 .build();
     }
 
-    private PlayingPuzzlesResponseDTO.PuzzleDTO convertToPuzzleDTO(PuzzlePlay puzzlePlay) {
-        return PlayingPuzzlesResponseDTO.PuzzleDTO.builder()
-                .puzzleUid(puzzlePlay.getPuzzle().getPuzzleUid())
-                .puzzleIndex(puzzlePlay.getPuzzle().getPuzzleIndex())
-                .imageUrl(puzzlePlay.getPuzzle().getPuzzleImage().getImageUrl())
-                .completed(puzzlePlay.getIsCompleted() != null && puzzlePlay.getIsCompleted())
-                .build();
-    }
 }
