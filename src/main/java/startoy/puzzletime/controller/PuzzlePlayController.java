@@ -31,7 +31,7 @@ public class PuzzlePlayController {
     public ResponseEntity<PuzzlePlayResponse> savePuzzlePlay(
             @PathVariable @Parameter(description = "퍼즐 play UID", required = true) String puzzlePlayUID,
             @RequestBody @Parameter(description = "퍼즐 진행 상태", required = true) PuzzlePlayRequest request,
-            @CookieValue(name = "token") String token) {  // 쿠키에서 앱 토큰 가져오기
+            @CookieValue(name = "token", required = false) String token) {  // 쿠키에서 앱 토큰 가져오기
 
         // 토큰에서 이메일 추출 후 사용자 ID 조회
         String email = tokenService.getEmailFromToken(token);
