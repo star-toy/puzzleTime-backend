@@ -1,4 +1,4 @@
-package startoy.puzzletime.dto.myPage;
+package startoy.puzzletime.dto.puzzlePlay;
 
 
 import lombok.*;
@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyPagePlayingPuzzlesResponseDTO {
+public class PlayingPuzzlesResponseDTO {
     private List<ArtworkWithPuzzles> artworks;
 
     @Getter
@@ -19,6 +19,7 @@ public class MyPagePlayingPuzzlesResponseDTO {
     @NoArgsConstructor
     public static class ArtworkWithPuzzles {
         private String artworkUid;
+        private String imageUrl;
         private List<PuzzleDTO> puzzles;
     }
 
