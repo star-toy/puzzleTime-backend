@@ -13,6 +13,7 @@ import startoy.puzzletime.repository.PuzzleRepository;
 import startoy.puzzletime.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,8 +49,9 @@ public class PuzzlePlayService {
         // Artwork 내 퍼즐 완료 현황 계산
         String completedPuzzlesFraction;
         if (userId.isPresent()) { // 회원인 경우
-            // 현황 계산
-            completedPuzzlesFraction = puzzlePlayRepository.getCompletedPuzzlesFractionByUid(userId.get(), puzzle.getPuzzleId());
+            // 퍼즐 완료 현황 계산
+            Map<String, String> puzzleFractionInfo = puzzlePlayRepository.getCompletedPuzzlesFractionByUid(userId.get(), puzzle.getPuzzleId());
+            completedPuzzlesFraction = String.format("%s/%s", puzzleFractionInfo.get("completedPuzzleCount"),puzzleFractionInfo.get("completedPuzzleCount"));
         } else { // 비회원인 경우
             completedPuzzlesFraction = request.isCompleted() ? "1/4" : "0/4";
         }
