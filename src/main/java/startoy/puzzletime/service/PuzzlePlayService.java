@@ -45,6 +45,9 @@ public class PuzzlePlayService {
         puzzlePlay.setPuzzlePlayData(request.getPuzzlePlayData());
         puzzlePlay.setIsCompleted(request.isCompleted());
         puzzlePlay.setUpdatedAt(LocalDateTime.now());
+        if (puzzlePlay.getUser().getId() == 0L && userId.isPresent()) { // 기존 정보가 게스트 정보이고, 현재 로그인 상태라면
+            puzzlePlay.setUser(userRepository.findById(userId.get()).get()); // 회원 정보 업데이트
+        }
 
         // 저장
         puzzlePlayRepository.save(puzzlePlay);
