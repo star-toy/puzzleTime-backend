@@ -10,6 +10,7 @@ import startoy.puzzletime.dto.theme.ThemeWithArtworksResponseDTO;
 import startoy.puzzletime.exception.CustomException;
 import startoy.puzzletime.exception.ErrorCode;
 import startoy.puzzletime.service.ThemeService;
+import startoy.puzzletime.service.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.List;
 public class ThemeController {
 
     private final ThemeService themeService;
+    private final TokenService tokenService;
     private static final Logger logger = LoggerFactory.getLogger(ThemeController.class);
 
      // 모든 테마와 해당 테마의 아트웍 리스트를 조회하는 API
@@ -43,8 +45,13 @@ public class ThemeController {
     @GetMapping("/{themeUid}/artworks")
     public ResponseEntity<ThemeWithArtworksAndPuzzlesResponseDTO> getThemeWithArtworksAndPuzzles(
             @PathVariable String themeUid,
-            @RequestParam(value = "email", required = false) String userEmail) {
-        logger.info("테마 UID '{}'의 아트웍 및 퍼즐 정보 조회 요청을 받았습니다.", themeUid);
+            @CookieValue(name = "token") String token) {
+
+        // 토큰에서 이메일 추출
+        String userEmail = tokenService.getEmailFromToken(token);
+
+        logger.info("계정 '{}'의 테마 UID '{}' 관련 아트웍 및 퍼즐 정보 조회 요청을 받았습니다.", userEmail, themeUid);
+
         ThemeWithArtworksAndPuzzlesResponseDTO response = themeService.getThemeWithArtworksAndPuzzlesByUid(themeUid, userEmail);
         return ResponseEntity.ok(response);
     }
