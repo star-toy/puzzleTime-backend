@@ -20,7 +20,7 @@ public interface PuzzleRepository extends JpaRepository<Puzzle, Long> {
     List<String> findDistinctArtworkUidsByUserEmail(String email);
 
     // 특정 아트웍의 퍼즐과 플레이 상태 조회
-    @Query("SELECT p, pp " +
+    @Query("SELECT DISTINCT p, pp " +
             "FROM Puzzle p " +
             "LEFT JOIN PuzzlePlay pp ON p = pp.puzzle AND pp.user.email = :email " +
             "WHERE p.artwork.artworkUid = :artworkUid")
