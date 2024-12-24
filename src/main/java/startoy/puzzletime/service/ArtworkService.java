@@ -51,14 +51,6 @@ public class ArtworkService {
         Artwork artwork = artworkRepository.findByArtworkUid(artworkUid)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTWORK_NOT_FOUND));
 
-        // 아트웍 정보 생성
-        ArtworkDTO artworkDto = new ArtworkDTO(
-                artwork.getArtworkUid(),
-                artwork.getArtworkTitle(),
-                artwork.getArtworkDescription(),
-                artwork.getArtworkSeq()
-        );
-
         // userId로 변경
         Long userId;
         if (userEmail != null) {
@@ -98,7 +90,18 @@ public class ArtworkService {
                 })
                 .collect(Collectors.toList());
 
-        return new ArtworkWithPuzzlesResponseDTO(artworkDto, puzzles, userEmail);
+        ArtworkDTO artworkDto = new ArtworkDTO(
+                artwork.getArtworkUid(),
+                artwork.getArtworkTitle(),
+                artwork.getArtworkDescription(),
+                artwork.getArtworkSeq()
+        );
+
+        return new ArtworkWithPuzzlesResponseDTO(
+                artworkDto,
+                puzzles,
+                userEmail
+        );
     }
 
     // 완성한 artwork과 reward 조회
