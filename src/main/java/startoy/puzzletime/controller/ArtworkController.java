@@ -61,22 +61,21 @@ public class ArtworkController {
     @GetMapping("/{artworkUid}/puzzles")
     public ResponseEntity<ArtworkWithPuzzlesResponseDTO> getArtworkWithPuzzles(
             @PathVariable String artworkUid,
-            @CookieValue(name = "token") String token) {
+            @CookieValue(name = "token", required = false) String token) {
 
-            // 토큰에서 이메일 추출
-            String userEmail = tokenService.getEmailFromToken(token);
+        String userEmail = null; // 기본 이메일 값은 null로 설정 (비회원)
+
+        if (token != null) {
+            try {
+                userEmail = tokenService.getEmailFromToken(token); // 회원의 이메일 추출
+            } catch (Exception e) {
+                logger.warn("토큰 디코딩 실패: {}", e.getMessage());
+            }
+        }
 
             logger.info("계정 '{}'의 아트웍 UID '{}' 기본 정보 및 퍼즐 목록 조회 요청을 받았습니다.", userEmail, artworkUid);
 
             ArtworkWithPuzzlesResponseDTO responseDto = artworkService.getArtworkWithPuzzlesByUidAndUser(artworkUid, userEmail);
-
-            if (responseDto == null) {
-                logger.warn("아트웍 UID '{}'에 대한 퍼즐 목록이 없습니다.", artworkUid);
-                throw new CustomException(ErrorCode.PUZZLE_NOT_FOUND);
-            }
-
-            // 응답 DTO에 email 설정
-            responseDto.setEmail(userEmail); // 비회원일 경우 null이 설정됨
 
             return ResponseEntity.ok(responseDto);
         }
