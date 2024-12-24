@@ -87,7 +87,7 @@ public class PuzzlePlayService {
                     long completedCount = puzzles.stream()
                             .filter(row -> row[1] != null && Boolean.TRUE.equals(((PuzzlePlay) row[1]).getIsCompleted()))
                             .count();
-                    return completedCount < 4; // 4개의 퍼즐이 모두 완료되지 않은 경우만 반환
+                    return completedCount < puzzles.size(); // 모든 퍼즐이 완료되지 않은 경우
                 })
                 .map(entry -> {
                     // 아트웍 정보
@@ -107,7 +107,7 @@ public class PuzzlePlayService {
                                         .puzzleUid(puzzle.getPuzzleUid())
                                         .puzzleIndex(puzzle.getPuzzleIndex())
                                         .imageUrl(puzzle.getPuzzleImage().getImageUrl())
-                                        .isCompleted(puzzlePlay != null && Boolean.TRUE.equals(puzzlePlay.getIsCompleted()))
+                                        .isCompleted(puzzlePlay != null && Boolean.TRUE.equals(puzzlePlay.getIsCompleted())) // null일 경우 false
                                         .build();
                             })
                             .collect(Collectors.toList());
