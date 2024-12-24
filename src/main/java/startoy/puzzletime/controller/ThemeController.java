@@ -45,12 +45,19 @@ public class ThemeController {
     @GetMapping("/{themeUid}/artworks")
     public ResponseEntity<ThemeWithArtworksAndPuzzlesResponseDTO> getThemeWithArtworksAndPuzzles(
             @PathVariable String themeUid,
-            @CookieValue(name = "token") String token) {
+            @CookieValue(name = "token" , required = false) String token) {
 
-        // 토큰에서 이메일 추출
-        String userEmail = tokenService.getEmailFromToken(token);
+        String userEmail = null; // 기본 이메일 값은 null로 설정 (비회원)
+        if (token != null) {
+            try {
+                userEmail = tokenService.getEmailFromToken(token); // 회원의 이메일 추출
+            } catch (Exception e) {
+                logger.warn("토큰 디코딩 실패: {}", e.getMessage());
+            }
+        }
 
-        logger.info("계정 '{}'의 테마 UID '{}' 관련 아트웍 및 퍼즐 정보 조회 요청을 받았습니다.", userEmail, themeUid);
+        logger.info("계정 '{}'의 테마 UID '{}' 관련 아트웍 및 퍼즐 정보 조회 요청을 받았습니다.",
+                userEmail != null ? userEmail : "비회원", themeUid);
 
         ThemeWithArtworksAndPuzzlesResponseDTO response = themeService.getThemeWithArtworksAndPuzzlesByUid(themeUid, userEmail);
         return ResponseEntity.ok(response);
