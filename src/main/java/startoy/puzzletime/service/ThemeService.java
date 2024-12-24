@@ -76,17 +76,16 @@ public class ThemeService {
                                 boolean isCompleted = false;
 
                                 if (userId != null) {
-                                    // 최신 플레이 기록을 기준으로 완료 여부 확인
+                                    // 회원일 경우 최신 플레이 기록을 기준으로 완료 여부 확인
                                     List<PuzzlePlay> puzzlePlays = puzzlePlayRepository
                                             .findByPuzzle_PuzzleIdAndUser_Id(puzzle.getPuzzleId(), userId);
 
-                                    // puzzlePlays가 비어있으면 (플레이 기록이 없으면) false 유지
-                                    // 플레이 기록이 있으면 완료 여부 확인
+                                    // puzzlePlays가 비어있으면 (플레이 기록이 없으면) false 유지, 플레이 기록이 있으면 완료 여부 확인
                                     isCompleted = !puzzlePlays.isEmpty() &&
                                             puzzlePlays.stream().anyMatch(PuzzlePlay::getIsCompleted);
                                 }
 
-                                // PuzzleResponseDTO 생성
+                                // PuzzleResponseDTO 생성(비회원일 경우 또는 플레이 기록이 없으면 isCompleted는 기본적으로 false)
                                 return new PuzzleResponseDTO(
                                         puzzle.getPuzzleUid(),
                                         puzzle.getPuzzleIndex(),
@@ -116,22 +115,9 @@ public class ThemeService {
                 theme.getImage().getImageUrl(),
                 bgmDTO,
                 artworks,
-                userEmail
+                userEmail // 비회원일 경우 null로 내려줌
         );
     }
-
-
-
-    //특정 테마 UID에 해당하는 테마와 아트웍 리스트를 가져오는 메서드
-    public ThemeWithArtworksResponseDTO getThemeWithArtworksByUid(String themeUid) {
-
-        // 테마를 themeUid로 조회, 없으면 예외 발생
-        Theme theme = themeRepository.findByThemeUid(themeUid)
-                .orElseThrow(() -> new CustomException(ErrorCode.THEME_NOT_FOUND));
-        return convertThemeToResponseDTO(theme);
-    }
-
-
 
     //Theme 엔티티를 ThemeWithArtworksResponseDTO로 변환하는 공통 메서드
     private ThemeWithArtworksResponseDTO convertThemeToResponseDTO(Theme theme) {
