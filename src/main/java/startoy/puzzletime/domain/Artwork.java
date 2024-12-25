@@ -44,17 +44,21 @@ public class Artwork {
     private ImageStorage artworkImage;
 
     @NotNull
+    @Column(name = "artwork_seq", nullable = false)
+    private Integer artworkSeq;
+
+    @NotNull
+    @Column(name = "reward_code", nullable = false)
+    private String rewardCode;
+
+    @NotNull
+    @Column(name = "reward_image_id", nullable = false)
+    private Integer rewardImageId;
+
+    @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @NotNull
-    @Column(name = "artwork_seq", nullable = false)
-    private Integer artworkSeq;
-
-    @NotNull
-    @Column(name = "reward_image_id", nullable = false)
-    private Integer rewardImageId;
 }
