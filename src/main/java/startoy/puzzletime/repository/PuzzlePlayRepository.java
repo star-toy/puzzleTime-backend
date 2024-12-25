@@ -48,7 +48,7 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
 
     // Artwork 내 퍼즐 완료 현황 계산 : "완료한 퍼즐 수/총 퍼즐 수" : "1/4", "2/4",,,
     @Query(value = """
-        SELECT CONCAT(comp.completedPuzzleCount, '/', tot.totalPuzzleCount) AS completedPuzzlesFraction
+        SELECT comp.completedPuzzleCount as completedPuzzleCount, tot.totalPuzzleCount as totalPuzzleCount
           FROM (
             -- Completed Puzzle Count
             SELECT COUNT(tpp.puzzle_play_id) AS completedPuzzleCount
@@ -68,7 +68,7 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
              )
           ) AS tot;
         """, nativeQuery = true)
-    String getCompletedPuzzlesFractionByUid(@Param("userId") long userId, @Param("puzzleId") long puzzleId);
+    Map<String, String> getCompletedPuzzlesFractionByUid(@Param("userId") long userId, @Param("puzzleId") long puzzleId);
 
     List<PuzzlePlay> findByPuzzle_PuzzleIdAndUser_Id(Long puzzleId, Long userId);
 

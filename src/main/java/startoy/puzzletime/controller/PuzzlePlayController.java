@@ -16,6 +16,8 @@ import startoy.puzzletime.service.UserService;
 
 import org.springframework.http.ResponseEntity;
 
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/puzzlePlays")
@@ -27,12 +29,12 @@ public class PuzzlePlayController {
     private final UserService userService;
     private final TokenService tokenService;
 
-    @Operation(summary = "Save Puzzle Play", description = "퍼즐 진행 상태를 저장합니다.")
+    @Operation(summary = "회원용 퍼즐 현황 저장", description = "퍼즐 진행 상태를 저장합니다.")
     @PostMapping("/{puzzlePlayUID}")
     public ResponseEntity<PuzzlePlayResponse> savePuzzlePlay(
             @PathVariable @Parameter(description = "퍼즐 play UID", required = true) String puzzlePlayUID,
             @RequestBody @Parameter(description = "퍼즐 진행 상태", required = true) PuzzlePlayRequest request,
-            @CookieValue(name = "token") String token) {  // 쿠키에서 앱 토큰 가져오기
+            @CookieValue(name = "token", required = true) String token) {  // 쿠키에서 앱 토큰 가져오기
 
         // 토큰에서 이메일 추출 후 사용자 ID 조회
         String email = tokenService.getEmailFromToken(token);
@@ -42,6 +44,18 @@ public class PuzzlePlayController {
         return ResponseEntity.ok(response);
     }
 
+
+    @Operation(summary = "게스트용 퍼즐 현황 저장", description = "퍼즐 진행 상태를 저장합니다.")
+    @PostMapping("guest/{puzzlePlayUID}")
+    public ResponseEntity<PuzzlePlayResponse> savePuzzlePlayForGuest(
+            @PathVariable @Parameter(description = "퍼즐 play UID", required = true) String puzzlePlayUID,
+            @RequestBody @Parameter(description = "퍼즐 진행 상태", required = true) PuzzlePlayRequest request) {
+
+        PuzzlePlayResponse response = puzzlePlayService.savePuzzlePlay(puzzlePlayUID, userService.GUEST_USER_ID, request);
+        return ResponseEntity.ok(response);
+    }
+  
+  
     @Operation(summary = "플레이 중인 퍼즐 목록 조회", description = "현재 사용자의 진행 중인 퍼즐 목록을 조회합니다.")
     @GetMapping("/playing")
     public ResponseEntity<PlayingPuzzlesResponseDTO> getPlayingPuzzles(@CookieValue(name = "token") String token) {

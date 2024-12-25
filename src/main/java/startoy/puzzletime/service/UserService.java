@@ -21,7 +21,7 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final TokenService tokenService;
-
+    public static final Long GUEST_USER_ID = 0L;
 
     // 사용자 조회 또는 생성 로직
     public UserWithStatusDTO findOrCreateUser(String email, String name, String provider, String providerId, String refreshToken) {
@@ -79,6 +79,12 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .map(User::getId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    // 이메일로 사용자 ID 조회 : 게스트도 사용할 수 있는 로직에 활용
+    public Optional<Long> findUserIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(User::getId); // 데이터가 없을 경우 빈 Optional 반환
     }
 
     // 이메일로 사용자 조회
