@@ -12,5 +12,6 @@ public class CompleteArtworksResponse {
     private int artworkSeq;
     private String artworkUid;
     private String artworkImgUrl;
+    private String rewardCode;
     private String rewardImgUrl;
 }

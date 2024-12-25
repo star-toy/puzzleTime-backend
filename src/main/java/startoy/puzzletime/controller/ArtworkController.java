@@ -43,8 +43,8 @@ public class ArtworkController {
         return ResponseEntity.ok(artworkDto);
     }*/
 
-    // Mypage - gallery 완성한 artwork과 reward 조회
-    @Operation(summary = "complete artworks", description = "갤러리에서 완성한 작품과 보상을 조회")
+
+    @Operation(summary = "Mypage - gallery 완성한 artwork 목록 조회", description = "갤러리에서 완성한 작품과 보상을 조회")
     @GetMapping("/completed")
     public ResponseEntity<List<CompleteArtworksResponse>> getCompleteArtworks(
             @CookieValue(name = "token") String token) {  // 쿠키에서 앱 토큰 가져오기

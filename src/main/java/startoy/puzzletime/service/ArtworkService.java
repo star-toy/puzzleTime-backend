@@ -122,6 +122,7 @@ public class ArtworkService {
                 .artworkSeq(map.getOrDefault("artworkSeq", 0) instanceof Integer ? (Integer) map.getOrDefault("artworkSeq", 0) : 0)
                 .artworkUid((String) map.getOrDefault("artworkUid", ""))
                 .artworkImgUrl((String) map.getOrDefault("artworkImgUrl", ""))
+                .rewardCode((String) map.getOrDefault("rewardCode", ""))
                 .rewardImgUrl((String) map.getOrDefault("rewardImgUrl", ""))
                 .build();
     }
