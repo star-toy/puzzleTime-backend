@@ -20,7 +20,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
 
     // userId로 완성한 artwork과 reward 조회
     @Query(value = """
-            SELECT ta.artwork_seq as artworkSeq, ta.artwork_uid as artworkUid, atis.image_url as artworkImgUrl, rtis.image_url as rewardImgUrl
+            SELECT ta.artwork_seq as artworkSeq, ta.artwork_uid as artworkUid, atis.image_url as artworkImgUrl, ta.reward_code as rewardCode, rtis.image_url as rewardImgUrl
               FROM tb_user_artworks tua
               join tb_artworks ta
                 on tua.artwork_id = ta.artwork_id
