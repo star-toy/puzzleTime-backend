@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import startoy.puzzletime.dto.myPage.MyPagePlayingPuzzlesResponseDTO;
+import startoy.puzzletime.dto.puzzlePlay.PlayingPuzzlesResponseDTO;
 import startoy.puzzletime.domain.PuzzlePlay;
 import startoy.puzzletime.repository.PuzzlePlayRepository;
 
@@ -23,7 +23,7 @@ public class MyPageService {
 
 
      // 사용자 이메일 기반으로 미완성 퍼즐 조회
-    public MyPagePlayingPuzzlesResponseDTO getPlayingPuzzles(String userEmail) {
+   /* public MyPagePlayingPuzzlesResponseDTO getPlayingPuzzles(String userEmail) {
         logger.info("Fetching playing puzzles for user: {}", userEmail);
 
         // 플레이 중인 퍼즐 정보 조회
@@ -56,5 +56,5 @@ public class MyPageService {
                 .imageUrl(puzzlePlay.getPuzzle().getPuzzleImage().getImageUrl())
                 .completed(puzzlePlay.getIsCompleted() != null && puzzlePlay.getIsCompleted())
                 .build();
-    }
+    }*/
 }

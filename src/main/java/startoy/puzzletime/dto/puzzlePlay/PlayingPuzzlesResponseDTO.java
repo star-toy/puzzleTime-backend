@@ -1,6 +1,8 @@
-package startoy.puzzletime.dto.myPage;
+package startoy.puzzletime.dto.puzzlePlay;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.List;
@@ -10,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyPagePlayingPuzzlesResponseDTO {
+public class PlayingPuzzlesResponseDTO {
     private List<ArtworkWithPuzzles> artworks;
 
     @Getter
@@ -19,6 +21,7 @@ public class MyPagePlayingPuzzlesResponseDTO {
     @NoArgsConstructor
     public static class ArtworkWithPuzzles {
         private String artworkUid;
+        private String imageUrl;
         private List<PuzzleDTO> puzzles;
     }
 
@@ -26,10 +29,12 @@ public class MyPagePlayingPuzzlesResponseDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    @JsonIgnoreProperties(value = { "completed" }) // "completed" 필드를 무시
     public static class PuzzleDTO {
         private String puzzleUid;
         private int puzzleIndex;
         private String imageUrl;
-        private boolean completed;
+        @JsonProperty("isCompleted")
+        private boolean isCompleted;
     }
 }
