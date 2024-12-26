@@ -52,6 +52,10 @@ public class Artwork {
     private String rewardCode;
 
     @NotNull
+    @Column(name = "gallery_reward_image_id", nullable = false)
+    private Integer galleryRewardImageId;
+
+    @NotNull
     @Column(name = "reward_image_id", nullable = false)
     private Integer rewardImageId;
 
