@@ -27,7 +27,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
               join tb_image_storage atis
                 on ta.artwork_image_id = atis.image_id
               join tb_image_storage rtis
-                on ta.reward_image_id = rtis.image_id
+                on ta.gallery_reward_image_id = rtis.image_id -- 갤러리용 reward 조회를 위함
              WHERE tua.user_id = :userId
                and tua.is_completed = '1'
             """, nativeQuery = true)
