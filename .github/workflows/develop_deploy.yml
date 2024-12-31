@@ -61,6 +61,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
           REGISTRATION_GOOGLE_REDIRECT_URI: https://puzzletime.fun/login/oauth2/code/google
+          
         run: ./gradlew clean build --scan
 
       - name: 빌드 디렉토리 확인
@@ -102,6 +103,7 @@ jobs:
         
       - name: Gradle 빌드 (deploy job에서)
         env:
+          GRADLE_ENTERPRISE_CONSENT: "yes"
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
         run: ./gradlew clean build --scan
         #working-directory: ./polling-backend # 빌드할 디렉토리 설정
@@ -122,23 +124,23 @@ jobs:
           target: '/home/ubuntu/puzzleTime-backend'
           overwrite: true # 파일 덮어쓰기 허용
           debug: true # 디버그 모드 활성화
-          timeout: 300s # 타임아웃 시간 증가
+          #timeout: 300s # 타임아웃 시간 증가
       
 
-      - name: 실행 중인 jar 파일 종료
-        uses: appleboy/ssh-action@v1.1.0
-        continue-on-error: true
-        with:
-           host: ${{ secrets.LIGHTSAIL_HOST_DEV }}  # 해당 인스턴스의 공용 IP 주소
-           username: ubuntu
-           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-           debug: true
-           timeout: 300s
-           script: |
-            pids=$(pgrep -f "java -jar /home/ubuntu/puzzleTime-backend/github/workspace/build/libs/puzzleTime-0.0.1-SNAPSHOT.jar")
+      # - name: 실행 중인 jar 파일 종료
+      #   uses: appleboy/ssh-action@v1.1.0
+      #   continue-on-error: true
+      #   with:
+      #      host: ${{ secrets.LIGHTSAIL_HOST_DEV }}  # 해당 인스턴스의 공용 IP 주소
+      #      username: ubuntu
+      #      key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+      #      debug: true
+      #      timeout: 300s
+      #      script: |
+      #       pids=$(pgrep -f "java -jar /home/ubuntu/puzzleTime-backend/github/workspace/build/libs/puzzleTime-0.0.1-SNAPSHOT.jar")
 
-            if [ -n "$pids" ]; then
-              for pid in $pids; do
-                kill -15 $pid
-              done
-            fi
+      #       if [ -n "$pids" ]; then
+      #         for pid in $pids; do
+      #           kill -15 $pid
+      #         done
+      #       fi
