@@ -122,7 +122,7 @@ jobs:
           target: '/home/ubuntu/puzzleTime-backend'
           overwrite: true # 파일 덮어쓰기 허용
           debug: true # 디버그 모드 활성화
-          timeout: 150s # 타임아웃 시간 증가
+          timeout: 300s # 타임아웃 시간 증가
       
 
       - name: 실행 중인 jar 파일 종료
