@@ -47,15 +47,19 @@ jobs:
 
       - name: Gradle 빌드
         env:
-        #  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
           GRADLE_ENTERPRISE_CONSENT: "yes"
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
+          
           # Spring Boot 데이터베이스 설정
           SPRING_PROFILES_ACTIVE: test
           SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
           SPRING_DATASOURCE_USERNAME: puzzletime
           SPRING_DATASOURCE_PASSWORD: puzzletime
+          REGISTRATION_GOOGLE_CLIENT_ID: ${{ secrets.REGISTRATION_GOOGLE_CLIENT_ID }}
+          REGISTRATION_GOOGLE_CLIENT_SECRET: ${{ secrets.REGISTRATION_GOOGLE_CLIENT_SECRET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          REGISTRATION_GOOGLE_REDIRECT_URI: https://www.puzzletime.fun/api/auth/callback/google
         run: ./gradlew clean build --scan
 
       - name: 빌드 디렉토리 확인
@@ -74,16 +78,16 @@ jobs:
           
     steps:
       - name: 리포지토리 체크아웃
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         
       - name: JDK 설치
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
       - name: AWS 인증하기
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-region: ap-northeast-2
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
@@ -96,8 +100,8 @@ jobs:
         run: chmod +x ./gradlew
         
       - name: Gradle 빌드
-      #  env:
-       #   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
         run: ./gradlew clean build --scan
 
       - name: 빌드 디렉토리 확인
@@ -120,8 +124,7 @@ jobs:
 
 
       - name: 실행 중인 jar 파일 종료
-        uses: appleboy/ssh-action@v1.1.0
-        continue-on-error: true
+        uses: appleboy/ssh-action@v1.1.0 # master -> 버전 명시
         with:
            host: ${{ secrets.LIGHTSAIL_HOST }}
            username: ubuntu
