@@ -60,6 +60,10 @@ public class TokenService {
 
     // 토큰에서 이메일 추출
     public String getEmailFromToken(String token) {
+        if (token == null || token.isEmpty()) {  // 비회원으로 처리
+            log.info("Token is missing or empty. Treating as unauthenticated request.");
+            return null;
+        }
         try {
             return jwtTokenProvider.getEmailFromToken(token);
         } catch (Exception e) {
