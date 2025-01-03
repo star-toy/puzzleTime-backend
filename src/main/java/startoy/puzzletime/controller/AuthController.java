@@ -74,12 +74,20 @@ public class AuthController {
     @Operation(summary = "토큰 갱신", description = "만료된 앱 액세스 토큰 갱신")
     @PostMapping("/token/refresh")
     public ResponseEntity<LoginResponseDTO> refreshToken(
-            @CookieValue(name = "token", required = true) String token,
+            @CookieValue(name = "token", required = false) String token,
             HttpServletResponse response) {
+
         logger.info("Token refresh requested");
 
         // 토큰 갱신
         String email = tokenService.getEmailFromToken(token);
+
+        // 이메일이 없으면 유효하지 않은 토큰
+        if (email == null) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+
+        // 토큰 갱신
         String newToken = tokenService.refreshAppAccessToken(email);
 
         // 새로운 토큰으로 쿠키 업데이트
