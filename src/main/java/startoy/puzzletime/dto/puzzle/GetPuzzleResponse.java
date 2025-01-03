@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class GetPuzzleResponse {
     private String puzzleUid;
-    private String puzzleImageUrl;
+    private String ImageUrl;
     private String puzzlePlayUid;
     private String puzzlePlayData;
 }
