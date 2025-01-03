@@ -22,7 +22,8 @@ public enum ErrorCode {
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "Image not found"),
     
     // 토큰 관련 에러
-    INVALID_TOKEN(HttpStatus.NOT_FOUND, "No token found in cookie"),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "No token found in cookie"),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Token has expired"),
 
     // 기타 일반적인 에러
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "Bad request"),
