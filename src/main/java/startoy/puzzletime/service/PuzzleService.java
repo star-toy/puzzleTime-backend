@@ -40,7 +40,7 @@ public class PuzzleService {
         // 값 추출 및 DTO 생성
         return GetPuzzleResponse.builder()
                 .puzzleUid(getString(result, "puzzleUid"))
-                .puzzleImageUrl(getString(result, "puzzleImageUrl"))
+                .ImageUrl(getString(result, "puzzleImageUrl"))
                 .puzzlePlayUid(puzzlePlayUid)
                 .puzzlePlayData(getString(result, "puzzlePlayData"))
                 .build();
