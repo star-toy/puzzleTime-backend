@@ -18,6 +18,15 @@ public class ApiExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleCustomException(CustomException ex) {
         ErrorCode errorCode = ex.getErrorCode();
 
+        // 토큰 만료 관련 예외 처리
+        if (errorCode == ErrorCode.TOKEN_EXPIRED) {
+            ErrorResponseDTO errorResponseDTO = ErrorResponseFactory.createErrorResponse(
+                    "Token has expired. Please log in again.",
+                    HttpStatus.UNAUTHORIZED.value()
+            );
+            return new ResponseEntity<>(errorResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+
         // ErrorResponse 생성 및 상태 코드와 함께 반환
         ErrorResponseDTO errorResponseDTO = ErrorResponseFactory.createErrorResponse(
                 errorCode.getMessage(),
