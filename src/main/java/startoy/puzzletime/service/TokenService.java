@@ -1,5 +1,6 @@
 package startoy.puzzletime.service;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -65,12 +66,47 @@ public class TokenService {
             return null;
         }
         try {
-            return jwtTokenProvider.getEmailFromToken(token);
+            // 토큰에서 이메일 추출
+            String email = jwtTokenProvider.getEmailFromToken(token);
+            logger.info("Extracted email from token: {}", email);
+
+            // 유효성 검사
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+            if (isAppTokenExpired(user)) {
+                log.warn("Token expired for user: {}", email);
+                // 만료된 토큰일 경우 이메일 반환 (갱신 로직에서 처리)
+                return email;
+            }
+
+            return email;
+
+        }catch (ExpiredJwtException e) {
+            // 만료된 토큰에서 이메일 추출
+            String expiredEmail = e.getClaims().getSubject();
+            log.warn("Expired token used, email extracted: {}", expiredEmail);
+            return expiredEmail; // 갱신 로직으로 이어짐
         } catch (Exception e) {
             log.error("Failed to extract email from token: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
     }
 
-}
+    // 토큰의 유효성만 별도로 확인하는 메서드
+    /*public boolean isTokenValid(String token) {
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
 
+        try {
+            String email = jwtTokenProvider.getEmailFromToken(token);
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+            return !isAppTokenExpired(user); // 만료되지 않았으면 true
+        } catch (Exception e) {
+            log.warn("Token is invalid or expired: {}", e.getMessage());
+            return false;
+        }
+    }*/
+}
