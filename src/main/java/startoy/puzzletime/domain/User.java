@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -19,14 +21,11 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
+    @NotNull
     private Long id;
 
     @NotNull
-    @Column(name = "user_uid", unique = true, nullable = false, length = 36)
-    private String userUid;
-
-    @NotNull
-    @Column(name = "user_name", nullable = false)
+    @Column(name = "username", nullable = false)
     private String userName;
 
     @NotNull
@@ -38,10 +37,29 @@ public class User {
     private String provider;
 
     @NotNull
-    @Column(name = "provider_id")
+    @Column(name = "provider_id", nullable = false)
     private String providerId;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private UserRole role;
+
+    @NotNull
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
+    private String refreshToken; // Google Refresh Token 값
+
+    @NotNull
+    @Column(name = "app_access_token", columnDefinition = "TEXT")
+    private String appAccessToken; // 애플리케이션 Access Token
+
+    @Column(name = "app_token_expires_at")
+    private LocalDateTime appTokenExpiresAt; // 애플리케이션 토큰 만료일자
+
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

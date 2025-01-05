@@ -1,6 +1,7 @@
 package startoy.puzzletime.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -13,26 +14,55 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tb_artworks")
 public class Artwork {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "artwork_id")
+    @Column(name = "artwork_id", nullable = false)
+    @NotNull
     private Long artworkId;
 
-    @Column(name = "artwork_uid", length = 36)
+    @NotNull
+    @Column(name = "artwork_uid", length = 36, nullable = false)
     private String artworkUid;
 
-    @Column(name = "artwork_title", length = 100)
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "theme_id", referencedColumnName = "theme_id", nullable = false)
+    private Theme theme;
+
+    @NotNull
+    @Column(name = "artwork_title", length = 100, nullable = false)
     private String artworkTitle;
 
-    @Column(name = "artwork_description", length = 255)
+    @NotNull
+    @Column(name = "artwork_description", length = 255, nullable = false)
     private String artworkDescription;
 
-    @Column(name = "created_at")
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "artwork_image_id", nullable = false)
+    private ImageStorage artworkImage;
+
+    @NotNull
+    @Column(name = "artwork_seq", nullable = false)
+    private Integer artworkSeq;
+
+    @NotNull
+    @Column(name = "reward_code", nullable = false)
+    private String rewardCode;
+
+    @NotNull
+    @Column(name = "gallery_reward_image_id", nullable = false)
+    private Integer galleryRewardImageId;
+
+    @NotNull
+    @Column(name = "reward_image_id", nullable = false)
+    private Integer rewardImageId;
+
+    @NotNull
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @Column(name = "total_stages", nullable = false)
-    private int totalStages;
 }

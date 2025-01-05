@@ -1,6 +1,7 @@
 package startoy.puzzletime.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -11,19 +12,24 @@ import lombok.*;
 @Entity
 @Table(name = "tb_image_storage")
 public class ImageStorage {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "image_id")
+    @Column(name = "image_id", nullable = false)
+    @NotNull
     private Long imageId;
 
-    @Column(name = "image_uid", length = 36)
+    @NotNull
+    @Column(name = "image_uid", length = 36, nullable = false)
     private String imageUid;
 
-    @Column(name = "image_url", length = 255)
+    @NotNull
+    @Column(name = "image_url", length = 255, nullable = false)
     private String imageUrl;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "image_type")
+    @Column(name = "image_type", nullable = false)
     private ImageType imageType;
 
     @Column(name = "image_type_id")
