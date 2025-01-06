@@ -149,4 +149,50 @@ public class PuzzlePlayService {
                 .build();
     }
 
+    // 비회원(게스트)의 플레이 중인 퍼즐 목록 조회
+    public PlayingPuzzlesResponseDTO getPlayingPuzzlesForGuest() {
+        logger.info("Fetching playing puzzles for guest user.");
+
+        // 게스트 플레이 데이터를 PuzzlePlay 테이블에서 조회
+        List<Object[]> guestPuzzleData = puzzlePlayRepository.findAllByGuestUser();
+
+        // 아트웍별로 그룹화
+        Map<String, List<Object[]>> groupedByArtwork = guestPuzzleData.stream()
+                .collect(Collectors.groupingBy(row -> ((Puzzle) row[0]).getArtwork().getArtworkUid()));
+
+        // 그룹화된 데이터를 변환
+        List<PlayingPuzzlesResponseDTO.ArtworkWithPuzzles> playingPuzzles = groupedByArtwork.entrySet().stream()
+                .map(entry -> {
+                    String artworkUid = entry.getKey();
+                    String artworkImageUrl = entry.getValue().stream()
+                            .findFirst()
+                            .map(row -> ((Puzzle) row[0]).getArtwork().getArtworkImage().getImageUrl())
+                            .orElse("");
+
+                    List<PlayingPuzzlesResponseDTO.PuzzleDTO> puzzles = entry.getValue().stream()
+                            .map(row -> {
+                                Puzzle puzzle = (Puzzle) row[0];
+                                PuzzlePlay puzzlePlay = (PuzzlePlay) row[1];
+
+                                return PlayingPuzzlesResponseDTO.PuzzleDTO.builder()
+                                        .puzzleUid(puzzle.getPuzzleUid())
+                                        .puzzleIndex(puzzle.getPuzzleIndex())
+                                        .imageUrl(puzzle.getPuzzleImage().getImageUrl())
+                                        .isCompleted(puzzlePlay != null && Boolean.TRUE.equals(puzzlePlay.getIsCompleted()))
+                                        .build();
+                            })
+                            .collect(Collectors.toList());
+
+                    return PlayingPuzzlesResponseDTO.ArtworkWithPuzzles.builder()
+                            .artworkUid(artworkUid)
+                            .imageUrl(artworkImageUrl)
+                            .puzzles(puzzles)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return PlayingPuzzlesResponseDTO.builder()
+                .artworks(playingPuzzles)
+                .build();
+    }
 }
