@@ -80,11 +80,23 @@ public class AuthController {
         logger.info("Token refresh requested");
 
         // 토큰 갱신
-        String email = tokenService.getEmailFromToken(token);
+/*        String email = tokenService.getEmailFromToken(token);
 
         // 이메일이 없으면 유효하지 않은 토큰
         if (email == null) {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }*/
+
+        // 토큰에서 이메일 추출
+        String email;
+        try {
+            email = tokenService.getEmailFromToken(token);
+        } catch (CustomException e) {
+            if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
+                logger.info("Access token expired. Proceeding with refresh.");
+                // 여기서 refreshToken API 호출로 이어질 수 있음
+            }
+            throw e; // 다른 에러는 그대로 던짐
         }
 
         // 토큰 갱신
