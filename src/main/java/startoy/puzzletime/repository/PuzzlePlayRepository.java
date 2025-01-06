@@ -25,17 +25,21 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
     Optional<PuzzlePlay> findByPuzzle_PuzzleId(Long puzzleId);
 
     // 퍼즐 UID와 사용자 ID로 해당 퍼즐 플레이 정보를 조회
-    @Query(value =
-            "SELECT IFNULL(pd.puzzle_uid, '') AS puzzleUid, " +
-            "       IFNULL(pd.image_url, '') AS puzzleImageUrl, " +
-            "       IFNULL(tpp.puzzle_play_uid, '') AS puzzlePlayUid, " +
-            "       IFNULL(tpp.puzzle_play_data, '') AS puzzlePlayData " +
-            "FROM (SELECT tp.puzzle_id, tp.puzzle_uid, tis.image_url " +
-            "      FROM tb_puzzles tp " +
-            "      JOIN tb_image_storage tis ON tp.puzzle_image_id = tis.image_id " +
-            "      WHERE tp.puzzle_uid = :puzzleUid) AS pd " +
-            "LEFT JOIN tb_puzzle_play tpp " +
-            "ON pd.puzzle_id = tpp.puzzle_id AND tpp.user_id = :userId",
+    @Query(value = """
+        SELECT IFNULL(pd.puzzle_uid, '') AS puzzleUid,
+               IFNULL(pd.image_url, '') AS puzzleImageUrl,
+               IFNULL(tpp.puzzle_play_uid, '') AS puzzlePlayUid,
+               IFNULL(tpp.puzzle_play_data, '') AS puzzlePlayData ,
+               IFNULL(pd.puzzle_index, 0) AS puzzleIndex,
+               IFNULL(pd.puzzle_image_id, '') AS puzzleImageId,
+               IFNULL(tpp.is_completed, 0) AS isCompleted
+        FROM (SELECT tp.puzzle_id, tp.puzzle_uid, tis.image_url, tp.puzzle_index, tp.puzzle_image_id
+                 FROM tb_puzzles tp
+                 JOIN tb_image_storage tis ON tp.puzzle_image_id = tis.image_id 
+                 WHERE tp.puzzle_uid = :puzzleUid) AS pd
+       LEFT JOIN tb_puzzle_play tpp
+       ON pd.puzzle_id = tpp.puzzle_id AND tpp.user_id = :userId
+            """,
             nativeQuery = true
     )
     Map<String, Object> findByPuzzleUidAndUserId(
