@@ -77,7 +77,9 @@ public class TokenService {
             if (isAppTokenExpired(user)) {
                 log.warn("Token expired for user: {}", email);
                 // 만료된 토큰일 경우 이메일 반환 (갱신 로직에서 처리)
-                return email;
+                //return email;
+                log.warn("Token expired for user: {}", email);
+                throw new CustomException(ErrorCode.TOKEN_EXPIRED); // TOKEN_EXPIRED 사용
             }
 
             return email;
@@ -86,9 +88,16 @@ public class TokenService {
             // 만료된 토큰에서 이메일 추출
             String expiredEmail = e.getClaims().getSubject();
             log.warn("Expired token used, email extracted: {}", expiredEmail);
-            return expiredEmail; // 갱신 로직으로 이어짐
-        } catch (Exception e) {
+            throw new CustomException(ErrorCode.TOKEN_EXPIRED); // TOKEN_EXPIRED 사용
+            //return expiredEmail; // 갱신 로직으로 이어짐
+        } catch (CustomException e) {
             log.error("Failed to extract email from token: {}", e.getMessage());
+            if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
+                logger.info("Access token expired. Proceeding with refresh.");
+                // 여기서 refreshToken API 호출로 이어질 수 있음
+                throw new CustomException(ErrorCode.TOKEN_EXPIRED); // TOKEN_EXPIRED 사용
+            }
+
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
     }

@@ -75,4 +75,9 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
     // 특정 퍼즐과 사용자 ID를 기준으로 플레이 기록 존재 여부 확인
     boolean existsByPuzzle_PuzzleIdAndUser_Id(Long puzzleId, Long userId);
 
+    // 게스트 데이터를 조회하는 쿼리
+    @Query("SELECT p, pp FROM Puzzle p " +
+            "LEFT JOIN PuzzlePlay pp ON p.puzzleId = pp.puzzle.puzzleId " +
+            "WHERE pp.user IS NULL")
+    List<Object[]> findAllByGuestUser();
 }

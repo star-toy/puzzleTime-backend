@@ -58,16 +58,21 @@ public class PuzzlePlayController {
   
     @Operation(summary = "플레이 중인 퍼즐 목록 조회", description = "현재 사용자의 진행 중인 퍼즐 목록을 조회합니다.")
     @GetMapping("/playing")
-    public ResponseEntity<PlayingPuzzlesResponseDTO> getPlayingPuzzles(@CookieValue(name = "token") String token) {
+    public ResponseEntity<PlayingPuzzlesResponseDTO> getPlayingPuzzles(@CookieValue(name = "token", required = false) String token) {
 
-        // 토큰에서 이메일 추출 후 사용자 ID 조회
+        // 토큰에서 이메일 추출 (비회원이면 null 반환)
         String email = tokenService.getEmailFromToken(token);
 
-        logger.debug("userEmail : {}", email);
+        if (email == null) {
+            // 비회원 처리: 게스트 데이터 조회
+            logger.info("No token found, treating request as guest user.");
+            PlayingPuzzlesResponseDTO response = puzzlePlayService.getPlayingPuzzlesForGuest();
+            return ResponseEntity.ok(response);
+        }
 
-        // 진행 중인 퍼즐 데이터 가져오기
+        // 회원 처리
+        logger.debug("User email extracted from token: {}", email);
         PlayingPuzzlesResponseDTO response = puzzlePlayService.getPlayingPuzzles(email);
-
         return ResponseEntity.ok(response);
     }
 }
