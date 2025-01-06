@@ -123,19 +123,19 @@ jobs:
           timeout: 150s # 타임아웃 시간 증가
 
 
-      - name: 실행 중인 jar 파일 종료
-        uses: appleboy/ssh-action@v1.1.0 # master -> 버전 명시
-        with:
-           host: ${{ secrets.LIGHTSAIL_HOST }}
-           username: ubuntu
-           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-           debug: true
-           timeout: 300s
-           script: |
-            pids=$(pgrep -f "java -jar /home/ubuntu/puzzleTime-backend/github/workspace/build/libs/puzzleTime-0.0.1-SNAPSHOT.jar")
+      # - name: 실행 중인 jar 파일 종료
+      #   uses: appleboy/ssh-action@v1.1.0 # master -> 버전 명시
+      #   with:
+      #      host: ${{ secrets.LIGHTSAIL_HOST }}
+      #      username: ubuntu
+      #      key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+      #      debug: true
+      #      timeout: 300s
+      #      script: |
+      #       pids=$(pgrep -f "java -jar /home/ubuntu/puzzleTime-backend/github/workspace/build/libs/puzzleTime-0.0.1-SNAPSHOT.jar")
 
-            if [ -n "$pids" ]; then
-              for pid in $pids; do
-                kill -15 $pid
-              done
-            fi
+      #       if [ -n "$pids" ]; then
+      #         for pid in $pids; do
+      #           kill -15 $pid
+      #         done
+      #       fi
