@@ -25,9 +25,8 @@ public class PuzzlePlay {
     @Column(name = "puzzle_play_uid", length = 36, nullable = false)
     private String puzzlePlayUid;
 
-    @NotNull
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = true)
     private User user;
 
     @NotNull

@@ -1,12 +1,14 @@
 package startoy.puzzletime.service;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import startoy.puzzletime.domain.Puzzle;
 import startoy.puzzletime.domain.PuzzlePlay;
+import startoy.puzzletime.domain.User;
 import startoy.puzzletime.domain.UserArtwork;
 import startoy.puzzletime.dto.puzzlePlay.PlayingPuzzlesResponseDTO;
 import startoy.puzzletime.dto.puzzlePlay.PuzzlePlayRequest;
@@ -36,26 +38,30 @@ public class PuzzlePlayService {
 
     @Transactional
     public PuzzlePlayResponse savePuzzlePlay(String puzzlePlayUID, Long userId, PuzzlePlayRequest request) {
-
+        // 퍼즐 UID로 퍼즐 정보 조회
         Puzzle puzzle = puzzleRepository.findByPuzzleUid(request.getPuzzleUid()).get();
+        User user = userRepository.findById(userId).get();
 
-        // 기존 퍼즐 진행 조회 또는 생성
+        // 기존 퍼즐 진행 조회 또는 새로 생성
         PuzzlePlay puzzlePlay = puzzlePlayRepository.findByPuzzlePlayUid(puzzlePlayUID)
-                .orElseGet(() -> PuzzlePlay.builder()
-                        .puzzlePlayUid(puzzlePlayUID)
-                        .puzzle(puzzle)
-                        .user(!userId.equals(userService.GUEST_USER_ID) ? userRepository.findById(userId).get() : null) // 게스트 유저 처리
-                        .createdAt(LocalDateTime.now())
-                        .build());
+                .orElseGet(() -> {
+                    PuzzlePlay newPuzzlePlay = PuzzlePlay.builder()
+                            .puzzlePlayUid(puzzlePlayUID)
+                            .puzzle(puzzle)
+                            .user(user)
+                            .createdAt(LocalDateTime.now())
+                            .build();
+                    return puzzlePlayRepository.save(newPuzzlePlay); // 새로 생성된 데이터를 저장
+                });
 
         // 진행 상태 업데이트
         puzzlePlay.setPuzzlePlayData(request.getPuzzlePlayData());
         puzzlePlay.setIsCompleted(request.isCompleted());
         puzzlePlay.setUpdatedAt(LocalDateTime.now());
-
-        if (puzzlePlay.getUser() == null && !userId.equals(userService.GUEST_USER_ID)) { // 기존 정보가 게스트 정보이고, 현재 로그인 상태라면
-            puzzlePlay.setUser(userRepository.findById(userId).get()); // 회원 정보 업데이트
-        }
+        puzzlePlay.setUser(user); // userId 1인 게스트 데이터 업데이틍
+        
+        // 퍼즐 플레이 데이터를 저장
+        puzzlePlay = puzzlePlayRepository.save(puzzlePlay);
 
         // Artwork 내 퍼즐 완료 현황 계산
         String completedPuzzlesFraction;
