@@ -47,10 +47,22 @@ public class ArtworkController {
     @Operation(summary = "Mypage - gallery 완성한 artwork 목록 조회", description = "갤러리에서 완성한 작품과 보상을 조회")
     @GetMapping("/completed")
     public ResponseEntity<List<CompleteArtworksResponse>> getCompleteArtworks(
-            @CookieValue(name = "token") String token) {  // 쿠키에서 앱 토큰 가져오기
+            @CookieValue(name = "token", required = false) String token ) {  // 쿠키에서 앱 토큰 가져오기
+        // required=true 값으로 할 경우 쿠키가 없으므로 400 에러가 발생하므로 부적절하여 false 로 진행
+
+        // Token 값이 없는 경우 401 반환
+        if (token == null || token.isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
 
         // 토큰에서 이메일 추출 후 사용자 ID 조회
         String email = tokenService.getEmailFromToken(token);
+
+        // 이메일이 null인 경우 (만료된 토큰)
+        if (email == null) {
+            throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+        }
+
         Long userId = userService.getUserIdByEmail(email);
 
         List<CompleteArtworksResponse> response = artworkService.findCompleteArtworks(userId);
