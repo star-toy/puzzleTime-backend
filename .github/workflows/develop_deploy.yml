@@ -50,7 +50,7 @@ jobs:
         env:
           GRADLE_ENTERPRISE_CONSENT: "yes"
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
-          
+
           # Spring Boot 데이터베이스 설정
           SPRING_PROFILES_ACTIVE: test
           SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/puzzletime?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
@@ -61,7 +61,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
           REGISTRATION_GOOGLE_REDIRECT_URI: https://puzzletime.fun/login/oauth2/code/google
+
         run: ./gradlew clean build --no-build-cache --info --stacktrace --scan
+
 
       - name: 빌드 디렉토리 확인
         run: ls -la build/
@@ -102,6 +104,7 @@ jobs:
         
       - name: Gradle 빌드 (deploy job에서)
         env:
+          GRADLE_ENTERPRISE_CONSENT: "yes"
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # Sentry 인증 토큰 전달
         run: ./gradlew clean build --scan
         #working-directory: ./polling-backend # 빌드할 디렉토리 설정
@@ -141,3 +144,4 @@ jobs:
                 kill -15 $pid
               done
             fi
+
