@@ -21,7 +21,7 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final TokenService tokenService;
-    public static final Long GUEST_USER_ID = 0L;
+    public static final Long GUEST_USER_ID = 1L;
 
     // 사용자 조회 또는 생성 로직
     public UserWithStatusDTO findOrCreateUser(String email, String name, String provider, String providerId, String refreshToken) {
