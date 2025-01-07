@@ -75,20 +75,29 @@ public class ArtworkController {
             @PathVariable String artworkUid,
             @CookieValue(name = "token", required = false) String token) {
 
-        // Token 값이 없는 경우 401 반환
-        if (token == null || token.isEmpty()) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        String userEmail = null; // 비회원 기본값
+
+        if (token != null && !token.isEmpty()) {
+            try {
+                // 토큰에서 이메일 추출
+                userEmail = tokenService.getEmailFromToken(token);
+
+                // 만료된 토큰 처리
+                if (userEmail == null) {
+                    throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+                }
+
+            } catch (CustomException e) {
+                // 만료된 토큰인 경우 로그 기록
+                if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
+                    logger.warn("만료된 토큰으로 요청되었습니다.");
+                } else {
+                    throw e; // 다른 예외는 그대로 던짐
+                }
+            }
         }
 
-        // 토큰에서 이메일 추출 후 사용자 ID 조회
-        String userEmail = tokenService.getEmailFromToken(token);
-
-        // 이메일이 null인 경우 (만료된 토큰)
-        if (userEmail == null) {
-            throw new CustomException(ErrorCode.TOKEN_EXPIRED);
-        }
-
-            logger.info("계정 '{}'의 아트웍 UID '{}' 기본 정보 및 퍼즐 목록 조회 요청을 받았습니다.", userEmail, artworkUid);
+        logger.info("계정 '{}'의 아트웍 UID '{}' 기본 정보 및 퍼즐 목록 조회 요청을 받았습니다.", userEmail, artworkUid);
 
             ArtworkWithPuzzlesResponseDTO responseDto = artworkService.getArtworkWithPuzzlesByUidAndUser(artworkUid, userEmail);
 
