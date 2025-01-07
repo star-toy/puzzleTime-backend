@@ -76,9 +76,8 @@ public class TokenService {
 
             if (isAppTokenExpired(user)) {
                 log.warn("Token expired for user: {}", email);
+
                 // 만료된 토큰일 경우 이메일 반환 (갱신 로직에서 처리)
-                //return email;
-                log.warn("Token expired for user: {}", email);
                 throw new CustomException(ErrorCode.TOKEN_EXPIRED); // TOKEN_EXPIRED 사용
             }
 
