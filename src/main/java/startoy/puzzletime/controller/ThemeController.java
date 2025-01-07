@@ -1,6 +1,7 @@
 package startoy.puzzletime.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -44,16 +45,19 @@ public class ThemeController {
     @Operation(summary = "테마에 관련된 artwork 및 puzzle 정보", description = "테마UID 값에 따른 artwork 및 puzzle 정보 조회")
     @GetMapping("/{themeUid}/artworks")
     public ResponseEntity<ThemeWithArtworksAndPuzzlesResponseDTO> getThemeWithArtworksAndPuzzles(
-            @PathVariable String themeUid,
+            @PathVariable @Parameter(description = "테마 UID", required = true) String themeUid,
             @CookieValue(name = "token" , required = false) String token) {
 
         String userEmail = null; // 기본 이메일 값은 null로 설정 (비회원)
+
         if (token != null) {
-            try {
                 userEmail = tokenService.getEmailFromToken(token); // 회원의 이메일 추출
-            } catch (Exception e) {
-                logger.warn("토큰 디코딩 실패: {}", e.getMessage());
-            }
+
+                // 이메일이 null인 경우 (만료된 토큰)
+                if (userEmail == null) {
+                    logger.info("만료된 토큰");
+                    throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+                }
         }
 
         logger.info("계정 '{}'의 테마 UID '{}' 관련 아트웍 및 퍼즐 정보 조회 요청을 받았습니다.",

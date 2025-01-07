@@ -75,14 +75,17 @@ public class ArtworkController {
             @PathVariable String artworkUid,
             @CookieValue(name = "token", required = false) String token) {
 
-        String userEmail = null; // 기본 이메일 값은 null로 설정 (비회원)
+        // Token 값이 없는 경우 401 반환
+        if (token == null || token.isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
 
-        if (token != null) {
-            try {
-                userEmail = tokenService.getEmailFromToken(token); // 회원의 이메일 추출
-            } catch (Exception e) {
-                logger.warn("토큰 디코딩 실패: {}", e.getMessage());
-            }
+        // 토큰에서 이메일 추출 후 사용자 ID 조회
+        String userEmail = tokenService.getEmailFromToken(token);
+
+        // 이메일이 null인 경우 (만료된 토큰)
+        if (userEmail == null) {
+            throw new CustomException(ErrorCode.TOKEN_EXPIRED);
         }
 
             logger.info("계정 '{}'의 아트웍 UID '{}' 기본 정보 및 퍼즐 목록 조회 요청을 받았습니다.", userEmail, artworkUid);
