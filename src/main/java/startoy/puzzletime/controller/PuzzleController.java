@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import startoy.puzzletime.dto.puzzle.GetPuzzleResponse;
+import startoy.puzzletime.exception.CustomException;
+import startoy.puzzletime.exception.ErrorCode;
 import startoy.puzzletime.service.PuzzleService;
 import startoy.puzzletime.service.TokenService;
 import startoy.puzzletime.service.UserService;
@@ -33,6 +35,12 @@ public class PuzzleController {
         String userId = null;
         if (token != null) {
             String email = tokenService.getEmailFromToken(token);
+
+            // 이메일이 null인 경우 (만료된 토큰)
+            if (email == null) {
+                throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+            }
+
             userId = userService.getUserIdByEmail(email).toString();
             log.info("User {} requesting puzzle {}", email, puzzleUid);
         }
