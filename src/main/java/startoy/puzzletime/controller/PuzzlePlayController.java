@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import startoy.puzzletime.dto.puzzlePlay.PlayingPuzzlesResponseDTO;
 import startoy.puzzletime.dto.puzzlePlay.PuzzlePlayRequest;
 import startoy.puzzletime.dto.puzzlePlay.PuzzlePlayResponse;
+import startoy.puzzletime.exception.CustomException;
+import startoy.puzzletime.exception.ErrorCode;
 import startoy.puzzletime.service.PuzzlePlayService;
 import startoy.puzzletime.service.TokenService;
 import startoy.puzzletime.service.UserService;
@@ -58,25 +60,43 @@ public class PuzzlePlayController {
         PuzzlePlayResponse response = puzzlePlayService.savePuzzlePlay(puzzlePlayUID, userService.GUEST_USER_ID, request);
         return ResponseEntity.ok(response);
     }
-  
-  
+
+
     @Operation(summary = "플레이 중인 퍼즐 목록 조회", description = "현재 사용자의 진행 중인 퍼즐 목록을 조회합니다.")
     @GetMapping("/playing")
     public ResponseEntity<PlayingPuzzlesResponseDTO> getPlayingPuzzles(@CookieValue(name = "token", required = false) String token) {
 
-        // 토큰에서 이메일 추출 (비회원이면 null 반환)
-        String email = tokenService.getEmailFromToken(token);
+        String userEmail = null; // 기본 이메일 값은 null로 설정 (비회원)
 
-        if (email == null) {
-            // 비회원 처리: 게스트 데이터 조회
-            logger.info("No token found, treating request as guest user.");
-            PlayingPuzzlesResponseDTO response = puzzlePlayService.getPlayingPuzzlesForGuest();
-            return ResponseEntity.ok(response);
+        if (token != null && !token.isEmpty()) {
+            try {
+                // 토큰에서 이메일 추출
+                userEmail = tokenService.getEmailFromToken(token);
+
+                // 만료된 토큰 처리
+                if (userEmail == null) {
+                    throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+                }
+
+            } catch (CustomException e) {
+                // 만료된 토큰인 경우 로그 기록
+                if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
+                    logger.warn("만료된 토큰으로 요청되었습니다.");
+                } else {
+                    throw e; // 다른 예외는 그대로 던짐
+                }
+            }
         }
 
-        // 회원 처리
-        logger.debug("User email extracted from token: {}", email);
-        PlayingPuzzlesResponseDTO response = puzzlePlayService.getPlayingPuzzles(email);
-        return ResponseEntity.ok(response);
+        // 회원/비회원 처리
+        if (userEmail == null) {
+            logger.info("No valid token found, treating request as guest user.");
+            PlayingPuzzlesResponseDTO response = puzzlePlayService.getPlayingPuzzlesForGuest();
+            return ResponseEntity.ok(response);
+        } else {
+            logger.debug("User email extracted from token: {}", userEmail);
+            PlayingPuzzlesResponseDTO response = puzzlePlayService.getPlayingPuzzles(userEmail);
+            return ResponseEntity.ok(response);
+        }
     }
 }
