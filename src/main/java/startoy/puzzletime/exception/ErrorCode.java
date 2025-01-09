@@ -23,6 +23,7 @@ public enum ErrorCode {
 
     // 토큰 관련 에러
     INVALID_TOKEN("ERR_INVALID_TOKEN", HttpStatus.UNAUTHORIZED, "No token found in cookie"),
+    TOKEN_REISSUE_REQUIRED("ERR_TOKEN_REISSUE_REQUIRED", HttpStatus.UNAUTHORIZED, "The token is Invalid. Please reauthenticate to obtain a new token."),
     TOKEN_EXPIRED("ERR_TOKEN_EXPIRED", HttpStatus.UNAUTHORIZED, "Token has expired"),
     TOKEN_NOT_FOUND("ERR_TOKEN_NOT_FOUND", HttpStatus.UNAUTHORIZED, "Token not found"),
 
