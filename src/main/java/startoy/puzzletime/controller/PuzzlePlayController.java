@@ -2,6 +2,9 @@ package startoy.puzzletime.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -29,7 +32,8 @@ public class PuzzlePlayController {
     private final UserService userService;
     private final TokenService tokenService;
 
-    @Operation(summary = "회원용 퍼즐 현황 저장", description = "퍼즐 진행 상태를 저장합니다.")
+    @Operation(summary = "회원용 퍼즐 현황 저장",
+            description = "퍼즐의 진행 상태를 저장합니다. puzzlePlayData의 갯수는 정해져 있지 않습니다.")
     @PostMapping("/{puzzlePlayUID}")
     public ResponseEntity<PuzzlePlayResponse> savePuzzlePlay(
             @PathVariable @Parameter(description = "퍼즐 play UID", required = true) String puzzlePlayUID,

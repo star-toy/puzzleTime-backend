@@ -1,5 +1,7 @@
 package startoy.puzzletime.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -37,7 +39,7 @@ public class PuzzlePlayService {
     private final UserService userService;
 
     @Transactional
-    public PuzzlePlayResponse savePuzzlePlay(String puzzlePlayUID, Long userId, PuzzlePlayRequest request) {
+    public PuzzlePlayResponse savePuzzlePlay(String puzzlePlayUID, Long userId, PuzzlePlayRequest request){
         // 퍼즐 UID로 퍼즐 정보 조회
         Puzzle puzzle = puzzleRepository.findByPuzzleUid(request.getPuzzleUid()).get();
         User user = userRepository.findById(userId).get();
@@ -55,7 +57,22 @@ public class PuzzlePlayService {
                 });
 
         // 진행 상태 업데이트
-        puzzlePlay.setPuzzlePlayData(request.getPuzzlePlayData());
+        try {
+            // JSON 문자열 변환
+            ObjectMapper objectMapper = new ObjectMapper();
+            String puzzlePlayDataJson = objectMapper.writeValueAsString(request.getPuzzlePlayData());
+
+            logger.debug("PuzzlePlayData: {}", request.getPuzzlePlayData());
+
+            // 진행 상태 업데이트 - PuzzlePlayData (Map을 JSON 문자열로 변환 후 저장)
+            puzzlePlay.setPuzzlePlayData(puzzlePlayDataJson);
+            
+        } catch (JsonProcessingException e){
+            logger.error("Error while converting puzzlePlayData to JSON", e);
+            throw new IllegalArgumentException("Invalid data for puzzlePlayData", e);
+        }
+
+        // 다른 속성 진행 상태 업데이트
         puzzlePlay.setIsCompleted(request.isCompleted());
         puzzlePlay.setUpdatedAt(LocalDateTime.now());
         puzzlePlay.setUser(user); // userId 1인 게스트 데이터 업데이틍
@@ -65,13 +82,21 @@ public class PuzzlePlayService {
 
         // Artwork 내 퍼즐 완료 현황 계산
         String completedPuzzlesFraction;
+
         if (!userId.equals(userService.GUEST_USER_ID)) { // 회원인 경우
             // 퍼즐 완료 현황 계산
-            Map<String, String> puzzleFractionInfo = puzzlePlayRepository.getCompletedPuzzlesFractionByUid(userId, puzzle.getPuzzleId());
+            Map<String, Object> puzzleFractionInfo = puzzlePlayRepository.getCompletedPuzzlesFractionByUid(userId, puzzle.getPuzzleId());
+            logger.info("puzzleFractionInfo: {}",puzzleFractionInfo);
+
+// 숫자 값으로 변환
+            Long completedCount = (Long) puzzleFractionInfo.get("completedPuzzleCount");
+            Long totalCount = (Long) puzzleFractionInfo.get("totalPuzzleCount");
+
+
             completedPuzzlesFraction = String.format("%s/%s", puzzleFractionInfo.get("completedPuzzleCount"), puzzleFractionInfo.get("totalPuzzleCount"));
 
             // 모든 퍼즐 완성 시 UserArtwork 저장
-            if (puzzleFractionInfo.get("completedPuzzleCount").equals(puzzleFractionInfo.get("totalPuzzleCount"))) {
+            if (completedCount.equals(totalCount)) {
                 UserArtwork userArtwork = UserArtwork.builder()
                         .userArtworkUid(UUID.randomUUID().toString())
                         .artwork(puzzle.getArtwork())
