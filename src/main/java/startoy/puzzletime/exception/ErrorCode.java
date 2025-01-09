@@ -24,6 +24,7 @@ public enum ErrorCode {
     // 토큰 관련 에러
     INVALID_TOKEN("ERR_INVALID_TOKEN", HttpStatus.UNAUTHORIZED, "No token found in cookie"),
     TOKEN_EXPIRED("ERR_TOKEN_EXPIRED", HttpStatus.UNAUTHORIZED, "Token has expired"),
+    TOKEN_NOT_FOUND("ERR_TOKEN_NOT_FOUND", HttpStatus.UNAUTHORIZED, "Token not found"),
 
     // 기타 일반적인 에러
     BAD_REQUEST("ERR_BAD_REQUEST", HttpStatus.BAD_REQUEST, "Bad request"),
