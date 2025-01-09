@@ -16,7 +16,7 @@ public enum ErrorCode {
     PUZZLE_NOT_FOUND("ERR_PUZZLE_NOT_FOUND", HttpStatus.NOT_FOUND, "Puzzle not found"),
 
     // 사용자 관련 에러
-    USER_NOT_FOUND("ERR_USER_NOT_FOUND", HttpStatus.NOT_FOUND, "User not found"),
+    USER_NOT_FOUND("ERR_USER_NOT_FOUND", HttpStatus.UNAUTHORIZED, "User not found"),
 
     // 이미지 관련 에러
     IMAGE_NOT_FOUND("ERR_IMAGE_NOT_FOUND", HttpStatus.NOT_FOUND, "Image not found"),

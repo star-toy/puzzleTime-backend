@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ import startoy.puzzletime.service.UserService;
 @Tag(name = "Puzzles", description = "Puzzles API")
 public class PuzzleController {
 
+    private static final Logger logger = LoggerFactory.getLogger(PuzzleController.class);
     private final PuzzleService puzzleService;
     private final UserService userService;
     private final TokenService tokenService;
@@ -33,17 +36,26 @@ public class PuzzleController {
             @CookieValue(name = "token", required = false) String token) {  // token이 없어도 동작하도록 required = false
 
         String userId = null;
+        String email = null;
+
         if (token != null) {
-            String email = tokenService.getEmailFromToken(token);
+             email = tokenService.getEmailFromToken(token);
 
             // 이메일이 null인 경우 (만료된 토큰)
             if (email == null) {
+
+                logger.info("Access token expired. Proceeding with refresh.");
                 throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+            } else {
+
+                logger.warn("유효하지 않은 토큰입니다. 새로 로그인하여 토큰을 발급받으세요.");
+                throw new CustomException(ErrorCode.TOKEN_REISSUE_REQUIRED);
             }
 
-            userId = userService.getUserIdByEmail(email).toString();
-            log.info("User {} requesting puzzle {}", email, puzzleUid);
         }
+        userId = userService.getUserIdByEmail(email).toString();
+        log.info("User {} requesting puzzle {}", email, puzzleUid);
+
 
         GetPuzzleResponse puzzleResponse = puzzleService.getPuzzleByUid(puzzleUid, userId);
         return ResponseEntity.ok(puzzleResponse);
