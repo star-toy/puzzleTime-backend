@@ -1,6 +1,7 @@
 package startoy.puzzletime.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -86,35 +87,19 @@ public class TokenService {
         }catch (ExpiredJwtException e) {
             // 만료된 토큰에서 이메일 추출
             String expiredEmail = e.getClaims().getSubject();
-            log.warn("Expired token used, email extracted: {}", expiredEmail);
-            throw new CustomException(ErrorCode.TOKEN_EXPIRED); // TOKEN_EXPIRED 사용
-            //return expiredEmail; // 갱신 로직으로 이어짐
-        } catch (CustomException e) {
-            log.error("Failed to extract email from token: {}", e.getMessage());
-            if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
-                logger.info("Access token expired. Proceeding with refresh.");
-                // 여기서 refreshToken API 호출로 이어질 수 있음
-                throw new CustomException(ErrorCode.TOKEN_EXPIRED); // TOKEN_EXPIRED 사용
-            }
+            logger.warn("Expired token used. Email extracted: {}", expiredEmail);
+            throw new CustomException(ErrorCode.TOKEN_EXPIRED); // 명확히 TOKEN_EXPIRED 처리
 
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        } catch (CustomException e) {
+            logger.error("CustomException occurred: {}", e.getErrorCode());
+            throw e; // 기존 CustomException은 그대로 던짐
+
+        } catch (SignatureException e) {
+            // 예상치 못한 오류 처리
+            logger.error("Unexpected error while processing token: {}", e.getMessage(), e);
+            throw new CustomException(ErrorCode.TOKEN_REISSUE_REQUIRED);
+
         }
     }
 
-    // 토큰의 유효성만 별도로 확인하는 메서드
-    /*public boolean isTokenValid(String token) {
-        if (token == null || token.isEmpty()) {
-            return false;
-        }
-
-        try {
-            String email = jwtTokenProvider.getEmailFromToken(token);
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-            return !isAppTokenExpired(user); // 만료되지 않았으면 true
-        } catch (Exception e) {
-            log.warn("Token is invalid or expired: {}", e.getMessage());
-            return false;
-        }
-    }*/
 }

@@ -51,15 +51,28 @@ public class ThemeController {
         String userEmail = null; // 기본 이메일 값은 null로 설정 (비회원)
 
         if (token != null) {
-                userEmail = tokenService.getEmailFromToken(token); // 회원의 이메일 추출
+                try {
+                    userEmail = tokenService.getEmailFromToken(token); // 회원의 이메일 추출
 
-                // 이메일이 null인 경우 (만료된 토큰)
-                if (userEmail == null) {
-                    logger.info("만료된 토큰");
-                    throw new CustomException(ErrorCode.TOKEN_EXPIRED);
-                }else {
+                    // 이메일이 null인 경우 (만료된 토큰)
+                    if (userEmail == null) {
+                        logger.info("만료된 토큰");
+                        throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+                    }else {
+                        logger.warn("유효하지 않은 토큰입니다. 새로 로그인하여 토큰을 발급받으세요.");
+                        throw new CustomException(ErrorCode.TOKEN_REISSUE_REQUIRED);
+                    }
 
-                    logger.warn("유효하지 않은 토큰입니다. 새로 로그인하여 토큰을 발급받으세요.");
+                } catch (CustomException e){
+                    // 만료된 토큰 처리
+                    if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
+                        logger.warn("유효하지 않은 토큰입니다. 새로 로그인하여 토큰을 발급받으세요.");
+                        throw new CustomException(ErrorCode.TOKEN_REISSUE_REQUIRED);
+                    }
+                    throw e; // 다른 예외는 그대로 던짐
+                } catch (Exception e) {
+                    // 예상치 못한 에러 처리
+                    logger.error("JWT 처리 중 오류 발생", e);
                     throw new CustomException(ErrorCode.TOKEN_REISSUE_REQUIRED);
                 }
         }
