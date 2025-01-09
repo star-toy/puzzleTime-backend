@@ -83,7 +83,8 @@ public class PuzzlePlayController {
                 if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
                     logger.warn("만료된 토큰으로 요청되었습니다.");
                 } else {
-                    throw e; // 다른 예외는 그대로 던짐
+                    logger.warn("유효하지 않은 토큰입니다. 새로 로그인하여 토큰을 발급받으세요.");
+                    throw new CustomException(ErrorCode.INVALID_TOKEN);
                 }
             }
         }
