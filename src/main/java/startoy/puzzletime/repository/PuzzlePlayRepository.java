@@ -72,7 +72,7 @@ public interface PuzzlePlayRepository extends JpaRepository<PuzzlePlay, Long> {
              )
           ) AS tot;
         """, nativeQuery = true)
-    Map<String, String> getCompletedPuzzlesFractionByUid(@Param("userId") long userId, @Param("puzzleId") long puzzleId);
+    Map<String, Object> getCompletedPuzzlesFractionByUid(@Param("userId") long userId, @Param("puzzleId") long puzzleId);
 
     List<PuzzlePlay> findByPuzzle_PuzzleIdAndUser_Id(Long puzzleId, Long userId);
 
