@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import startoy.puzzletime.domain.User;
 import startoy.puzzletime.exception.CustomException;
 import startoy.puzzletime.exception.ErrorCode;
@@ -24,6 +25,7 @@ public class TokenService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
+
     // 새로운 앱 액세스 토큰 생성
     public String createAppAccessToken(User user) {
         String appAccessToken = jwtTokenProvider.createToken(user.getEmail(), user.getUserName());
@@ -39,6 +41,7 @@ public class TokenService {
         return appAccessToken;
     }
 
+    @Transactional
     // 앱 액세스 토큰 갱신
     public String refreshAppAccessToken(String email) {
         User user = userRepository.findByEmail(email)
