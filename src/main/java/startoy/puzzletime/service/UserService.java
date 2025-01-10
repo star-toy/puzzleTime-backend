@@ -3,6 +3,7 @@ package startoy.puzzletime.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import startoy.puzzletime.domain.User;
 import startoy.puzzletime.domain.UserRole;
 import startoy.puzzletime.dto.user.UserWithStatusDTO;
@@ -23,6 +24,8 @@ public class UserService {
     private final TokenService tokenService;
     public static final Long GUEST_USER_ID = 1L;
 
+
+    @Transactional
     // 사용자 조회 또는 생성 로직
     public UserWithStatusDTO findOrCreateUser(String email, String name, String provider, String providerId, String refreshToken) {
         Optional<User> existingUser = userRepository.findByEmail(email);
@@ -41,8 +44,9 @@ public class UserService {
         }
     }
 
+    @Transactional
     // 기존 사용자 정보 업데이트
-    private User updateExistingUser(User user, String refreshToken) {
+    public User updateExistingUser(User user, String refreshToken) {
 
         // refresh_token이 제공된 경우에만 업데이트
         if (refreshToken != null && !refreshToken.isEmpty()) {
@@ -55,6 +59,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     // 새 사용자 생성
     public User createNewUser(String email, String name, String provider, String providerId, String refreshToken) {
         User newUser = User.builder()
