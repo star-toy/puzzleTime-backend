@@ -70,4 +70,25 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
+
+    // 토큰에서 만료 시간 추출
+    public LocalDateTime getExpiredAtFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // 만료 시간 추출 (Date 타입을 LocalDateTime으로 변환)
+            Date expiration = claims.getExpiration();
+            return expiration.toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDateTime();
+        } catch (JwtException | IllegalArgumentException e) {
+            logger.error("Failed to extract expiration time from token: {}", e.getMessage());
+            throw new IllegalArgumentException("Invalid JWT token");
+        }
+    }
+
 }
