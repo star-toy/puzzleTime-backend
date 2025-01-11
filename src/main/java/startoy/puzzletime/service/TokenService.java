@@ -29,10 +29,10 @@ public class TokenService {
     // 새로운 앱 액세스 토큰 생성
     public String createAppAccessToken(User user) {
         String appAccessToken = jwtTokenProvider.createToken(user.getEmail(), user.getUserName());
-        LocalDateTime expiresAt = LocalDateTime.now().plusHours(24);
+        LocalDateTime expiredAt = jwtTokenProvider.getExpiredAtFromToken(appAccessToken); // 만료 시간 추출
 
         user.setAppAccessToken(appAccessToken);
-        user.setAppTokenExpiresAt(expiresAt);
+        user.setAppTokenExpiresAt(expiredAt);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
@@ -50,17 +50,32 @@ public class TokenService {
         // 토큰 만료 여부 확인(토큰이 아직 유효하면(isAppTokenExpired(user)가 false) 기존 토큰을 반환.)
         if (!isAppTokenExpired(user)) {
             logger.info("Token is still valid for user: {}", email);
-            return user.getAppAccessToken();
+            return user.getAppAccessToken(); // 기존 토큰 반환
         }
 
         logger.info("Token expired for user: {}. Creating new token.", email);
-        return createAppAccessToken(user);
+
+        // 새로운 토큰 생성 및 저장
+        String newToken = createAppAccessToken(user);
+
+        // 사용자 객체의 만료일 갱신 후 확인
+        if (user.getAppTokenExpiresAt() != null && user.getAppTokenExpiresAt().isAfter(LocalDateTime.now())) {
+            logger.info("New token successfully created for user: {}", email);
+        } else {
+            logger.warn("Token expiration date not updated correctly for user: {}", email);
+        }
+
+        return newToken;
     }
 
     // 토큰 만료 여부 확인
     public boolean isAppTokenExpired(User user) {
-        return user.getAppTokenExpiresAt() != null &&
-                user.getAppTokenExpiresAt().isBefore(LocalDateTime.now());
+        if (user.getAppTokenExpiresAt() == null) {
+            logger.warn("AppTokenExpiresAt is null for user: {}", user.getEmail());
+            return true; // 만료된 것으로 간주
+        }
+
+        return user.getAppTokenExpiresAt().isBefore(LocalDateTime.now());
     }
 
     // 토큰에서 이메일 추출

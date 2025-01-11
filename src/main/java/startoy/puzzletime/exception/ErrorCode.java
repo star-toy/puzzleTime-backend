@@ -26,6 +26,7 @@ public enum ErrorCode {
     TOKEN_REISSUE_REQUIRED("ERR_TOKEN_REISSUE_REQUIRED", HttpStatus.UNAUTHORIZED, "The token is Invalid. Please reauthenticate to obtain a new token."),
     TOKEN_EXPIRED("ERR_TOKEN_EXPIRED", HttpStatus.UNAUTHORIZED, "Token has expired"),
     TOKEN_NOT_FOUND("ERR_TOKEN_NOT_FOUND", HttpStatus.UNAUTHORIZED, "Token not found"),
+    TOKEN_MISSING("ERR_TOKEN_MISSING", HttpStatus.BAD_REQUEST, "Token is missing."),
 
     // 기타 일반적인 에러
     BAD_REQUEST("ERR_BAD_REQUEST", HttpStatus.BAD_REQUEST, "Bad request"),

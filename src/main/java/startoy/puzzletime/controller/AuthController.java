@@ -77,6 +77,11 @@ public class AuthController {
             @CookieValue(name = "token", required = false) String token,
             HttpServletResponse response) {
 
+        if (token == null || token.isEmpty()) {
+            logger.warn("No token found in request.");
+            throw new CustomException(ErrorCode.TOKEN_MISSING); // 새로운 에러 코드 생성
+        }
+
         logger.info("Token refresh requested");
 
         // 토큰에서 이메일 추출
@@ -84,14 +89,15 @@ public class AuthController {
 
         try {
             email = tokenService.getEmailFromToken(token);
+
         } catch (CustomException e) {
             if (e.getErrorCode() == ErrorCode.TOKEN_EXPIRED) {
                 logger.info("Access token expired. Proceeding with refresh.");
                 throw new CustomException(ErrorCode.TOKEN_EXPIRED);
-                // 여기서 refreshToken API 호출로 이어질 수 있음
-            } else {
-                logger.warn("유효하지 않은 토큰입니다. 새로 로그인하여 토큰을 발급받으세요.");
-                throw new CustomException(ErrorCode.TOKEN_REISSUE_REQUIRED);
+
+            }else {
+                logger.error("Token processing failed: {}", e.getErrorCode());
+                throw e; // 예상치 못한 오류는 그대로 던짐
             }
         }
 
