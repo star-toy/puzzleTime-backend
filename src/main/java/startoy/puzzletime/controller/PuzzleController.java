@@ -46,10 +46,6 @@ public class PuzzleController {
 
                 logger.info("Access token expired. Proceeding with refresh.");
                 throw new CustomException(ErrorCode.TOKEN_EXPIRED);
-            } else {
-
-                logger.warn("유효하지 않은 토큰입니다. 새로 로그인하여 토큰을 발급받으세요.");
-                throw new CustomException(ErrorCode.TOKEN_REISSUE_REQUIRED);
             }
 
         }
